@@ -13,12 +13,32 @@
 				<li><strong>Shatner Bingo</strong></li>
 			</ul>
 			<ul>
-				<li><a href="#">Login</a></li>
-				<li><a href="#">Games</a></li>
+				<li><span id="player-name"></span></li>
+				<li><a id="auth-link" href="#">Login</a></li>
+				<li><a id="games-link" href="#">Games</a></li>
 			</ul>
 		</nav>
 	</header>
 	<main>
+		<section id="login-view" class="view active">
+			<form>
+				<fieldset>
+					<p style="text-align: left;">Enter the player name you wish to use to log in. No need to register, just pick something
+					and go.</p>
+					<input id="username" name="name" placeholder="Player Name" autocomplete="username" />
+				</fieldset>
+
+				<input id="login-submit" type="submit" value="Login" />
+			</form>
+		</section>
+
+		<section id="games-view" class="view">
+			<h1 class="centered">Game List</h1>
+		</section>
+
+		<section id="card-view" class="view">
+			<h1 class="centered">Game Card</h1>
+		</section>
 	</main>
 	<footer>
 		<nav>
@@ -28,5 +48,6 @@
 		</nav>
 	</footer>
 </div>
+<script src="js/main.js"></script>
 </body>
 </html>

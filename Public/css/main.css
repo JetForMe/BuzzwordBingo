@@ -1,4 +1,5 @@
-html, body {
+html, body
+{
 	height: 100%;
 	margin: 0;
 	padding: 0;
@@ -6,13 +7,37 @@ html, body {
 	flex-direction: column;
 }
 
-body > .container {
+body > .container
+{
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 }
 
-main {
+main
+{
 	flex: 1;
+	position: relative;
+	min-height: 50vh;
 }
 
+.view
+{
+	display: none;
+	opacity: 0;
+	transition: opacity 200ms ease-in-out;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding-top: 10vh;
+	text-align: center;
+}
+
+.view.active
+{
+	display: block;
+	opacity: 1;
+	position: relative;
+}
