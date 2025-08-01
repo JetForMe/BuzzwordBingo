@@ -56,6 +56,35 @@ async function showView(viewId)
 async function updateView(inViewID)
 {
 	console.log("Updating view " + inViewID)
+	if (inViewID == "games-view")
+	{
+		try
+		{
+			const response = await fetch(`/api/games`,
+			{
+				method: "GET",
+				headers:
+				{
+					"Accept": "application/json"
+				}
+			});
+
+			if (!response.ok)
+			{
+				throw new Error(`Server returned ${response.status}`);
+			}
+
+			const games = await response.json();
+			console.log("Games: " + JSON.stringify(games))
+			renderGamesList(games)
+		}
+		
+		catch (err)
+		{
+			console.error("get games failed:", err);
+			alert("get games failed. Please try again.");
+		}
+	}
 }
 
 async function login()
@@ -177,4 +206,41 @@ showDefaultView()
 	{
 		showView("games-view")
 	}
+}
+
+
+function
+renderGamesList(games)
+{
+	const container = document.getElementById("games-list");
+	container.innerHTML = ""		//	Clear existing contents
+
+	if (games.length === 0)
+	{
+		container.textContent = "No games available."
+		return
+	}
+
+	games.forEach(game =>
+	{
+		const details = document.createElement("details")
+		details.setAttribute("name", "game")
+		
+		const summary = document.createElement("summary")
+		
+		const span = document.createElement("span")
+		span.className = "label"
+		span.textContent = game.name
+		summary.appendChild(span)
+		
+		const button = document.createElement("button")
+		button.className = "join-btn"
+		button.textContent = "Join"
+		button.onclick = () => joinGame(game.id);
+		summary.appendChild(button)
+		
+		details.appendChild(summary)
+		
+		container.appendChild(details)
+	});
 }
