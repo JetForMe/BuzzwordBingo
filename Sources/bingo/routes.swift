@@ -1,11 +1,20 @@
 import Vapor
 
-func routes(_ app: Application) throws {
-app.get { req async in
-        "It works!"
-    }
 
-    app.get("hello") { req async -> String in
-        "Hello, world!"
-    }
+
+
+
+
+
+
+
+
+func
+routes(_ inApp: Application)
+	throws
+{
+	inApp.get("hello")
+	{ _ async -> String in
+		"Hello, world!"
+	}
 }
