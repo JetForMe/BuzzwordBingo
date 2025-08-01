@@ -12,20 +12,94 @@ import VaporTesting
 struct
 bingoTests
 {
-	@Test("Test Hello World Route")
+	@Test("Test Get User")
 	func
-	helloWorld()
+	getUser()
 		async
 		throws
 	{
 		try await withApp(configure: configure)
-		{ app in
-			try await app.testing().test(.GET,
-											"hello",
+		{ inApp in
+			try await inApp.testing().test(.GET,
+											"/api/players/Gregory",
 											afterResponse:
-											{ res async in
-												#expect(res.status == .ok)
-												#expect(res.body.string == "Hello, world!")
+											{ inResp async throws in
+												#expect(inResp.status == .ok)
+												let returnedPlayer = try inResp.content.decode(PlayerDTO.self)
+												#expect(returnedPlayer.id == UUID("035681DF-03EB-44F0-B7D1-4552BD6678AC")!)
+												#expect(returnedPlayer.name == "Gregöry")
+											})
+			try await inApp.testing().test(.GET,
+											"/api/players/gregory",
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .ok)
+												let returnedPlayer = try inResp.content.decode(PlayerDTO.self)
+												#expect(returnedPlayer.id == UUID("035681DF-03EB-44F0-B7D1-4552BD6678AC")!)
+												#expect(returnedPlayer.name == "Gregöry")
+											})
+		}
+	}
+	
+	@Test("Test Register User")
+	func
+	registerUser()
+		async
+		throws
+	{
+		try await withApp(configure: configure)
+		{ inApp in
+			let player = PlayerDTO(id: nil, name: "Gregory")
+			try await inApp.testing().test(.POST,
+											"/api/players",
+											beforeRequest:
+											{ inReq in
+												try inReq.content.encode(player)
+											},
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .created)
+												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
+												_ = try #require(createdPlayer.id)
+												#expect(createdPlayer.name == player.name)
+											})
+		}
+	}
+	
+	@Test("Test Register Duplicate User Fails")
+	func
+	registerDuplicateUser()
+		async
+		throws
+	{
+		try await withApp(configure: configure)
+		{ inApp in
+			let player = PlayerDTO(id: nil, name: "Gregory")
+			try await inApp.testing().test(.POST,
+											"/api/players",
+											beforeRequest:
+											{ inReq in
+												try inReq.content.encode(player)
+											},
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .created)
+												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
+												_ = try #require(createdPlayer.id)
+												#expect(createdPlayer.name == player.name)
+											})
+			try await inApp.testing().test(.POST,
+											"/api/players",
+											beforeRequest:
+											{ inReq in
+												try inReq.content.encode(player)
+											},
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .internalServerError)
+												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
+												_ = try #require(createdPlayer.id)
+												#expect(createdPlayer.name == player.name)
 											})
 		}
 	}
