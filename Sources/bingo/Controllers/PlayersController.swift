@@ -90,15 +90,28 @@ PlayersController : RouteCollection
 											.first()
 			}
 			
-			var newPlayer = try inReq.content.decode(PlayerDTO.self)
+			var playerDTO = try inReq.content.decode(PlayerDTO.self)
+			var resp: Response!
 			
-			let player = Player(id: nil, name: newPlayer.name)
-			try await player.create(on: inTxn)
-			newPlayer = try PlayerDTO(id: player.requireID(), name: player.name)
+			if existingPlayer == nil
+			{
+				existingPlayer = Player(id: nil, name: playerDTO.name)
+				try await existingPlayer!.create(on: inTxn)
+				
+				resp = Response(status: .created)
+				resp.headers.replaceOrAdd(name: .location, value: "/api/players/\(try existingPlayer!.requireID().uuidString)")
+			}
+			else
+			{
+				existingPlayer!.name = playerDTO.name
+				try await existingPlayer!.save(on: inTxn)
+				resp = Response(status: .ok)
+			}
 			
-			let resp = Response(status: .created)
-			resp.headers.replaceOrAdd(name: .location, value: "/api/players/\(newPlayer.id!.uuidString)")
-			try resp.content.encode(newPlayer)
+			playerDTO.id = existingPlayer!.id
+			playerDTO.name = existingPlayer!.name
+			
+			try resp.content.encode(playerDTO)
 			return resp
 		}
 	}

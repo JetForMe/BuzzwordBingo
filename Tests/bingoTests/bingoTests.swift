@@ -49,7 +49,7 @@ bingoTests
 	{
 		try await withApp(configure: configure)
 		{ inApp in
-			let player = PlayerDTO(id: nil, name: "Gregory")
+			let player = PlayerDTO(id: nil, name: "Häifa")
 			try await inApp.testing().test(.POST,
 											"/api/players",
 											beforeRequest:
@@ -74,9 +74,10 @@ bingoTests
 	{
 		try await withApp(configure: configure)
 		{ inApp in
-			let player = PlayerDTO(id: nil, name: "Gregory")
-			try await inApp.testing().test(.POST,
-											"/api/players",
+			let player = PlayerDTO(id: nil, name: "Häifa")
+			var id: UUID?
+			try await inApp.testing().test(.PUT,
+											"/api/players/\(player.name)",
 											beforeRequest:
 											{ inReq in
 												try inReq.content.encode(player)
@@ -85,20 +86,20 @@ bingoTests
 											{ inResp async throws in
 												#expect(inResp.status == .created)
 												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
-												_ = try #require(createdPlayer.id)
+												id = try #require(createdPlayer.id)
 												#expect(createdPlayer.name == player.name)
 											})
-			try await inApp.testing().test(.POST,
-											"/api/players",
+			try await inApp.testing().test(.PUT,
+											"/api/players/\(player.name)",
 											beforeRequest:
 											{ inReq in
 												try inReq.content.encode(player)
 											},
 											afterResponse:
 											{ inResp async throws in
-												#expect(inResp.status == .internalServerError)
+												#expect(inResp.status == .ok)
 												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
-												_ = try #require(createdPlayer.id)
+												#expect(createdPlayer.id == id)
 												#expect(createdPlayer.name == player.name)
 											})
 		}
