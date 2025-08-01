@@ -1,3 +1,5 @@
+import api from "./api.js"
+
 document.addEventListener("DOMContentLoaded", () =>
 {
 	(async () =>
@@ -22,6 +24,16 @@ document.addEventListener("DOMContentLoaded", () =>
 			e.preventDefault();
 			login()
 		};
+		
+		//	Temp card button…
+		
+		const cardLink = document.getElementById("card-link");
+		cardLink.onclick = (e) =>
+		{
+			e.preventDefault();
+			showView("card-view")
+		};
+		
 	})();
 });
 
@@ -100,26 +112,8 @@ async function login()
 
 	try
 	{
-		const response = await fetch(`/api/players/${encodeURIComponent(username)}`,
-		{
-			method: "PUT",
-			headers:
-			{
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(
-					{
-						name: username
-					})
-		});
-
-		if (!response.ok)
-		{
-			throw new Error(`Server returned ${response.status}`);
-		}
-
-		const player = await response.json();
-
+		const player = await api.login(username)
+		
 		// Store player ID (or whatever else you need)
 		localStorage.setItem("playerID", player.id);
 

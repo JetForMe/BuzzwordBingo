@@ -1,0 +1,45 @@
+//
+//  CardsTests.swift
+//  bingo
+//
+//  Created by Rick Mann on 2025-08-01.
+//
+
+@testable import bingo
+import Testing
+import VaporTesting
+
+
+
+
+@Suite("Players Tests")
+struct
+CardsTests
+{
+	@Test("Test Get Player Card")
+	func
+	getPlayerCard()
+		async
+		throws
+	{
+		let playerID = UUID("035681DF-03EB-44F0-B7D1-4552BD6678AC")!
+		try await withApp(configure: configure)
+		{ inApp in
+			try await inApp.testing().test(.GET,
+											"/api/games/Shatner2025/card",
+											beforeRequest:
+											{ ioReq in
+												ioReq.headers.add(name: "Player-ID", value: playerID.uuidString)
+											},
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .ok)
+												let card = try inResp.content.decode(CardDTO.self)
+												#expect(card.gameID == UUID("6C737A65-5371-4762-94E7-AD59E400803E")!)
+												#expect(card.playerID == playerID)
+												#expect(card.words.count == 25)
+											})
+		}
+	}
+	
+}

@@ -22,7 +22,7 @@ the username, creating a new one if necessary, and returns the `PlayerID`
 To create a game, POST to `/api/games` a word list and game name.
 
 To edit a game, PUT to `/api/games/<gameID>` with a word list. If the
-word list is different than the existing list, all existing `CardWord`s are
+word list is different than the existing list, all existing `Card`s (and `CardWord`s) are
 deleted and new ones created.
 
 > **TODO:** Preserve marked words?

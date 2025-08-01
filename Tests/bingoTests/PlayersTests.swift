@@ -8,9 +8,9 @@ import VaporTesting
 
 
 
-@Suite("App Tests")
+@Suite("Players Tests")
 struct
-bingoTests
+PlayersTests
 {
 	@Test("Test Get User")
 	func
@@ -50,8 +50,8 @@ bingoTests
 		try await withApp(configure: configure)
 		{ inApp in
 			let player = PlayerDTO(id: nil, name: "Häifa")
-			try await inApp.testing().test(.POST,
-											"/api/players",
+			try await inApp.testing().test(.PUT,
+											"/api/players/\(player.name)",
 											beforeRequest:
 											{ inReq in
 												try inReq.content.encode(player)
@@ -59,6 +59,19 @@ bingoTests
 											afterResponse:
 											{ inResp async throws in
 												#expect(inResp.status == .created)
+												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
+												_ = try #require(createdPlayer.id)
+												#expect(createdPlayer.name == player.name)
+											})
+			try await inApp.testing().test(.PUT,
+											"/api/players/\(player.name)",
+											beforeRequest:
+											{ inReq in
+												try inReq.content.encode(player)
+											},
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .ok)
 												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
 												_ = try #require(createdPlayer.id)
 												#expect(createdPlayer.name == player.name)

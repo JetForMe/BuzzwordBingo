@@ -68,3 +68,26 @@ summary .join-btn
 {
 	pointer-events: auto;
 }
+
+.bingo-card
+{
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	aspect-ratio: 1 / 1; /* ensures square overall grid */
+	max-width: 90vmin;
+	width: 100%;
+	margin: 0 auto;
+	gap: 8px;
+}
+
+.bingo-card > div
+{
+	aspect-ratio: 1 / 1; /* makes each cell square */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	border: 1px solid #ccc;
+	background-color: #f5f5f5;
+	font-size: clamp(0.8rem, 2.5vmin, 1.2rem);
+}

@@ -38,25 +38,18 @@ PlayersController : RouteCollection
 			var existingPlayer: Player?
 			if let playerID = UUID(uuidString: nameOrID)
 			{
-				existingPlayer = try await Player
-											.query(on: inTxn)
-											.filter(\.$id == playerID)
-											.first()
+				existingPlayer = try await Player.find(id: playerID, on: inTxn)
 			}
 			else
 			{
-				let username = nameOrID.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
-				existingPlayer = try await Player
-											.query(on: inTxn)
-											.filter(\.$username == username)
-											.first()
+				existingPlayer = try await Player.find(name: nameOrID, on: inTxn)
 			}
 			
 			guard
 				let existingPlayer
 			else
 			{
-				throw Errors.notFound
+				throw ApplicationError.notFound("Player \(nameOrID) not found")
 			}
 			
 			let playerDTO = try PlayerDTO(id: existingPlayer.requireID(), name: existingPlayer.name)
@@ -77,17 +70,11 @@ PlayersController : RouteCollection
 			var existingPlayer: Player?
 			if let playerID = UUID(uuidString: nameOrID)
 			{
-				existingPlayer = try await Player
-											.query(on: inTxn)
-											.filter(\.$id == playerID)
-											.first()
+				existingPlayer = try await Player.find(id: playerID, on: inTxn)
 			}
 			else
 			{
-				existingPlayer = try await Player
-											.query(on: inTxn)
-											.filter(\.$name == nameOrID)
-											.first()
+				existingPlayer = try await Player.find(name: nameOrID, on: inTxn)
 			}
 			
 			var playerDTO = try inReq.content.decode(PlayerDTO.self)

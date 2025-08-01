@@ -22,6 +22,9 @@ configure(_ inApp: Application)
 	sLogger.info("Path working directory: \(Path.cwd)")
 	sLogger.info("PUBLIC_DIR:             \(String(describing: Environment.get("PUBLIC_DIR")))")
 	
+	//	Register our Player injection middleware…
+	
+	inApp.middleware.use(PlayerMiddleware())
 	
 	//	Register static file middleware…
 	//	(this bullshit to find the source Public/ folder, since Xcode can't behave…)
@@ -95,6 +98,8 @@ configureDatabase(_ inApp: Application)
 	inApp.migrations.add(CreateGame())
 	inApp.migrations.add(CreateGameWord())
 	inApp.migrations.add(CreatePlayer())
+	inApp.migrations.add(CreateCard())
+	inApp.migrations.add(CreateCardWord())
 
 //	inApp.migrations.add(UpdateUserV2())
 	
@@ -102,7 +107,6 @@ configureDatabase(_ inApp: Application)
 		|| inApp.environment == .testing
 	{
 		inApp.migrations.add(SeedGames())
-		inApp.migrations.add(SeedGameWords())
 		inApp.migrations.add(SeedPlayers())
 	}
 	

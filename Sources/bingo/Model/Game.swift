@@ -52,73 +52,76 @@ GameWord : Model, @unchecked Sendable
 	{
 		self.id = id
 		self.$game.id = game.id!
+		self.$game.value = game
 		self.word = word
 	}
 }
 
-final
-class
-Player : Model, @unchecked Sendable
+
+
+
+
+extension
+Game
 {
-	static let schema = "Player"
-	
-	@ID(key: .id)					var id				:	UUID?
-	@Field(key: .name)				var name			:	String
-	@Field(key: .username)			var username		:	String
-	
-	init() {}
-	
-	init(id: UUID? = nil, name: String)
+	static
+	func
+	getAll(on inDB: any Database)
+		async
+		throws
+		-> [Game]
 	{
-		self.id = id
-		self.name = name
-		self.username = name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+		let result = try await Game
+								.query(on: inDB)
+								.with(\.$words)
+								.all()
+		return result
+	}
+	
+	static
+	func
+	find(id inID: UUID, on inDB: any Database)
+		async
+		throws
+		-> Game?
+	{
+		let result = try await Game
+								.query(on: inDB)
+								.filter(\.$id == inID)
+								.with(\.$words)
+								.first()
+		return result
+	}
+	
+	static
+	func
+	find(name inName: String, on inDB: any Database)
+		async
+		throws
+		-> Game?
+	{
+		let result = try await Game
+								.query(on: inDB)
+								.filter(\.$name == inName)
+								.with(\.$words)
+								.first()
+		return result
+	}
+	
+	static
+	func
+	find(nameOrID inNameOrID: String, on inDB: any Database)
+		async
+		throws
+		-> Game?
+	{
+		if let gameID = UUID(uuidString: inNameOrID)
+		{
+			return try await Game.find(id: gameID, on: inDB)
+		}
+		else
+		{
+			return try await Game.find(name: inNameOrID, on: inDB)
+		}
 	}
 }
-
-
-final
-class
-Card : Model, @unchecked Sendable
-{
-	static let schema = "Card"
-	
-	@ID(key: .id)					var id				:	UUID?
-	@Parent(key: .gameID)			var game			:	Game
-	@Parent(key: .playerID)			var player			:	Player
-	
-	init() {}
-	
-	init(id: UUID? = nil, game: Game, player: Player)
-	{
-		self.id = id
-		self.$game.id = game.id!
-		self.$player.id = player.id!
-	}
-}
-
-
-final
-class
-CardWord : Model, @unchecked Sendable
-{
-	static let schema = "CardWord"
-	
-	@ID(key: .id)					var id				:	UUID?
-	@Parent(key: .cardID)			var card			:	Card
-	@Parent(key: .wordID)			var word			:	GameWord
-	@Field(key: .sequence)			var sequence		:	Int
-	@Field(key: .marked)			var marked			:	Bool?
-	
-	init() {}
-	
-	init(id: UUID? = nil, card: Card, word: GameWord, sequence: Int, marked: Bool? = nil)
-	{
-		self.id = id
-		self.$card.id = card.id!
-		self.$word.id = word.id!
-		self.sequence = sequence
-		self.marked = marked
-	}
-}
-

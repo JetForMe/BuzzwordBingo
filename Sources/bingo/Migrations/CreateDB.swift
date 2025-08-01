@@ -56,6 +56,7 @@ CreateGameWord: AsyncMigration
 						.id()
 						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .setNull), .required)
 						.field(.word, .string, .required)
+						.unique(on: .gameID, .word)
 						.create()
 	}
 
@@ -92,6 +93,60 @@ CreatePlayer: AsyncMigration
 		throws
 	{
 		try await inDB.schema(Player.schema).delete()
+	}
+}
+
+
+struct
+CreateCard : AsyncMigration
+{
+	func
+	prepare(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.schema(Card.schema)
+						.id()
+						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .setNull), .required)
+						.field(.playerID, .uuid, .references(Player.schema, .id, onDelete: .setNull), .required)
+						.unique(on: .gameID, .playerID)
+						.create()
+	}
+
+	func
+	revert(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.schema(Card.schema).delete()
+	}
+}
+
+
+
+struct
+CreateCardWord : AsyncMigration
+{
+	func
+	prepare(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.schema(CardWord.schema)
+						.id()
+						.field(.cardID, .uuid, .references(Card.schema, .id, onDelete: .setNull), .required)
+						.field(.wordID, .uuid, .references(GameWord.schema, .id, onDelete: .setNull), .required)
+						.field(.sequence, .int, .required)
+						.field(.marked, .bool)
+						.create()
+	}
+
+	func
+	revert(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.schema(CardWord.schema).delete()
 	}
 }
 

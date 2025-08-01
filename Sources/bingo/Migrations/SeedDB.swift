@@ -23,55 +23,51 @@ struct
 SeedGames : AsyncMigration
 {
 	/**
-		(ID, name, Created)
+		Games (ID, name, Created)
 	*/
 	
 	let
-	defaults: [(UUID, String, Date)] =
+	games: [(UUID, String, Date)] =
 	[
 		(UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Shatner2025", Date()),
 		(UUID("58F5F6F5-7A0E-4DA2-ABA5-8398758ACE4F")!, "Shatner2024", Date(timeIntervalSinceNow: -3600.0 * 24 * 365)),
 	]
 	
-	func
-	prepare(on inDB: any Database)
-		async
-		throws
-	{
-		for (inID, inName, inCreated) in self.defaults
-		{
-			let r = Game(id: inID, name: inName, created: inCreated)
-			try await r.save(on: inDB)
-		}
-	}
-
-	func
-	revert(on inDB: any Database)
-		async
-		throws
-	{
-		for (inID, _, _) in self.defaults
-		{
-			try await Game.query(on: inDB).filter(\.$id == inID).delete()
-		}
-	}
-}
-
-
-
-
-struct
-SeedGameWords : AsyncMigration
-{
 	/**
-		(ID, name, Created)
+		GameWords (ID, Game ID, Word)
 	*/
 	
 	let
-	defaults: [(UUID, UUID, String)] =
+	words: [(UUID, UUID, String)] =
 	[
-		(UUID("39732854-1671-4A05-B290-03081F9A9068")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "trees"),
-		(UUID("2D2E8DEF-CE96-4B39-918E-87B9689AC76E")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "horses"),
+		(UUID("39732854-1671-4A05-B290-03081F9A9068")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Trees"),
+		(UUID("2D2E8DEF-CE96-4B39-918E-87B9689AC76E")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Horses"),
+		(UUID("08B751C5-2861-4E50-BB9C-7FA94614D24F")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Aliens"),
+		(UUID("93355D58-4201-46DC-B2CB-6983D6E1BAA2")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "What?"),
+		(UUID("1832FE5A-5C76-461A-BE43-C1780568C6F5")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Intimidation"),
+		(UUID("5D252992-AEB4-4CBD-AC9D-44335A94211C")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Set"),
+		(UUID("32665FE7-02A4-4FF2-A033-4CC660E300DF")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Blue Origin"),
+		(UUID("4552F8B9-F006-431A-8107-3B241CE43174")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Album"),
+		(UUID("AAD0C7FE-DC80-4F67-BAD6-40F06A81FF4F")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Sharks"),
+		(UUID("DB3FBB25-5AB6-4527-B4C2-5E6DC74FEC0C")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Antarctica"),
+		(UUID("799E22BA-3BCB-49B3-8E22-A282C9AF5AC1")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Mortality"),
+		(UUID("52046CDB-8E27-4564-8062-F01446D43B25")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "The Universe"),
+		(UUID("A4FCBC22-C0CD-427D-8B92-FD854940AB86")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Consciousness"),
+		(UUID("8A83172A-AD20-4FDC-BB40-F7166DD44430")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Energy"),
+		(UUID("0C7B900C-9037-4773-8420-6959E8C18349")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Ego"),
+		(UUID("07BFCCA5-D812-4B31-8B29-E1E2D64EA057")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Time"),
+		(UUID("B2F6F151-8C20-494E-A50E-757AAC4C02E9")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Reality"),
+		(UUID("9F777272-92F5-47B8-A535-D724BD4DB3BA")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Life and Death"),
+		(UUID("05F2E418-E3AB-42C0-BF90-DF05B4A904D2")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Humanity"),
+		(UUID("626DD190-7A59-4352-8E30-D5F9F36DC649")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Poetry"),
+		(UUID("E6F22E9B-9A9A-49C6-A030-11ADDCA3BFFB")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Motorcycles"),
+		(UUID("7035100D-1065-43B0-A4E0-B2414027922B")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Nashville"),
+		(UUID("734BF5E4-AD60-4745-9ED3-272C4F8411C5")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Mispronounces Common Word"),
+		(UUID("7D8FF186-7192-4EBE-B043-6B416B4C1902")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Talks Over Audience"),
+		(UUID("EE221BE2-4240-44A1-B781-99DADD50823E")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Twilight Zone"),
+		(UUID("A7B11434-8045-4863-A19C-A65FCF9871E4")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Leonard"),
+		(UUID("86BBE476-C9C3-4D09-9D02-D1547376DDCA")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Conventions"),
+		(UUID("591BB766-C1AD-4E5F-A69D-81291C01FF54")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "“Just Realized”"),
 	]
 	
 	func
@@ -79,7 +75,17 @@ SeedGameWords : AsyncMigration
 		async
 		throws
 	{
-		for (inID, inGameID, inWord) in self.defaults
+		//	Seed the games…
+		
+		for (inID, inName, inCreated) in self.games
+		{
+			let r = Game(id: inID, name: inName, created: inCreated)
+			try await r.save(on: inDB)
+		}
+		
+		//	Seed the words…
+		
+		for (inID, inGameID, inWord) in self.words
 		{
 			let game = try await Game.query(on: inDB).filter(\.$id == inGameID).first()!
 			let r = GameWord(id: inID, game: game, word: inWord)
@@ -92,12 +98,16 @@ SeedGameWords : AsyncMigration
 		async
 		throws
 	{
-		for (inID, _, _) in self.defaults
+		//	Deleting games should delete any words associated…
+		
+		for (inID, _, _) in self.games
 		{
-			try await GameWord.query(on: inDB).filter(\.$id == inID).delete()
+			try await Game.query(on: inDB).filter(\.$id == inID).delete()
 		}
 	}
 }
+
+
 
 struct
 SeedPlayers : AsyncMigration
