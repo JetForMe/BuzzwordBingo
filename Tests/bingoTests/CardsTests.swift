@@ -42,11 +42,18 @@ CardsTests
 												//	Ensure they’re sorted by sequence…
 												
 												var lastSequence = -1
+												var words = Set<String>()
 												for cw in card.words
 												{
 													#expect(lastSequence < cw.sequence)
 													lastSequence = cw.sequence
+													
+													words.insert(cw.word)
 												}
+												
+												//	Ensure there are no duplicates…
+												
+												#expect(words.count == card.words.count)
 											})
 		}
 	}

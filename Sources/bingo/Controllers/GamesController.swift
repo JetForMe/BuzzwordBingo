@@ -103,10 +103,25 @@ GamesController : RouteCollection
 				card = Card(game: game, player: player)
 				try await card.save(on: inTxn)
 				
+				var gameWords = game.words
+				
 				var words = [CardWord]()
 				for i in 0 ..< 25
 				{
-					let gameWord = game.words.randomElement()!
+					//	Grab a random word and remove it from the list of available words…
+					
+					let gameWord = gameWords.randomElement()!
+					gameWords.removeAll { $0.id == gameWord.id }
+					
+					//	Just in case there aren’t enough game words, start over…
+					
+					if gameWords.isEmpty
+					{
+						gameWords = game.words
+					}
+					
+					//	Create a CardWord for it…
+					
 					let cardWord = CardWord(card: card, word: gameWord, sequence: i)
 					try await cardWord.save(on: inTxn)
 					words.append(cardWord)

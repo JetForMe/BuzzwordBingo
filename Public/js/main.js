@@ -294,4 +294,34 @@ renderCard(inCard)
 		cell.appendChild(cellContent)
 		cellContent.textContent = word.word
 	})
+	
+	//	Shrink to fit after the browser has laid things out…
+	
+	requestAnimationFrame(() =>
+	{
+		document.querySelectorAll('.bingo-card > div').forEach(shrinkToFitCard);
+	})
 }
+
+function shrinkToFitCard(container, minFontSize = 8, step = 0.5)
+{
+	const content = container.firstElementChild;
+	if (!content) return;
+
+	// Reset font size
+	let fontSize = 20; // starting guess
+	content.style.fontSize = `${fontSize}px`;
+
+	const maxHeight = container.clientHeight;
+	const maxWidth = container.clientWidth;
+
+	while (
+		(fontSize > minFontSize) &&
+		(content.scrollHeight > maxHeight || content.scrollWidth > maxWidth)
+	)
+	{
+		fontSize -= step;
+		content.style.fontSize = `${fontSize}px`;
+	}
+}
+

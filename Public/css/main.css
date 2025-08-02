@@ -106,7 +106,7 @@ summary .join-btn
 	-webkit-line-clamp: 4;
 	-webkit-box-orient: vertical;
 	text-overflow: ellipsis;
-	font-size: clamp(1rem, 2.5vmin, 1.2rem);
+	font-size: clamp(0.5rem, 2.5vmin, 1.2rem);
 }
 
 .wordList
