@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () =>
 		const playerID = localStorage.getItem("playerID")
 		api.setPlayerID(playerID)
 		
+		loadCurrentGame()
+		
 		await updateUI()
 		await showDefaultView()
 		
@@ -219,7 +221,23 @@ showDefaultView()
 async function
 joinGame(inGameID)
 {
-	const card = await api.getPlayerCard(inGameID)
+	localStorage.setItem("currentGameID", inGameID)
+	loadCurrentGame()
+}
+
+async function
+loadCurrentGame()
+{
+	const gameID = localStorage.getItem("currentGameID")
+	if (!gameID)
+	{
+		return
+	}
+	
+	const game = await api.getGame(gameID)
+	localStorage.setIem("currentGame", game)
+	
+	const card = await api.getPlayerCard(gameID)
 	localStorage.setItem("playerCard", JSON.stringify(card))
 	renderCard(card)
 	showView("card-view")
@@ -297,31 +315,37 @@ renderCard(inCard)
 	
 	//	Shrink to fit after the browser has laid things out…
 	
-	requestAnimationFrame(() =>
-	{
-		document.querySelectorAll('.bingo-card > div').forEach(shrinkToFitCard);
-	})
+//	requestAnimationFrame(() =>
+//	{
+//		document.querySelectorAll('.bingo-card > div').forEach(shrinkToFitCard);
+//	})
 }
 
-function shrinkToFitCard(container, minFontSize = 8, step = 0.5)
-{
+function shrinkToFitCard(container, minFontSize = 8, step = 0.5) {
 	const content = container.firstElementChild;
 	if (!content) return;
 
-	// Reset font size
-	let fontSize = 20; // starting guess
+	// Let wrapping happen
+	content.style.whiteSpace = 'normal';
+	content.style.wordBreak = 'break-word';
+
+	// Start large, reduce if needed
+	let fontSize = 20;
 	content.style.fontSize = `${fontSize}px`;
 
-	const maxHeight = container.clientHeight;
-	const maxWidth = container.clientWidth;
+	// Measure container box — this is the limit
+	const maxHeight = container.offsetHeight;
+	const maxWidth = container.offsetWidth;
 
-	while (
-		(fontSize > minFontSize) &&
-		(content.scrollHeight > maxHeight || content.scrollWidth > maxWidth)
-	)
-	{
+	// Measure content — this must stay within the box
+	let scrollH = content.scrollHeight;
+	let scrollW = content.scrollWidth;
+
+	while ((scrollH > maxHeight || scrollW > maxWidth) && fontSize > minFontSize) {
 		fontSize -= step;
 		content.style.fontSize = `${fontSize}px`;
+
+		scrollH = content.scrollHeight;
+		scrollW = content.scrollWidth;
 	}
 }
-

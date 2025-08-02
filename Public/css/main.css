@@ -56,57 +56,15 @@ summary .label
 	text-align: left;
 }
 
-/* Optional: shrink button size */
 summary .join-btn
 {
 	padding: 0.25rem 0.75rem;
 	font-size: 0.9em;
 }
 
-/* Optional: avoid expanding details when clicking Join */
 summary .join-btn
 {
 	pointer-events: auto;
-}
-
-.bingo-card
-{
-	display: grid;
-	grid-template-columns: repeat(5, 1fr);
-	aspect-ratio: 1 / 1; /* ensures square overall grid */
-	max-width: 90vmin;
-	width: 100%;
-	margin: 0 auto;
-	gap: 8px;
-}
-
-.bingo-card > div
-{
-	aspect-ratio: 1 / 1; /* makes each cell square */
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	border: 1px solid #ccc;
-	background-color: #f5f5f5;
-	padding: 4px;
-}
-
-.bingo-card > div > div
-{
-	/* Wrap text normally */
-	white-space: normal;
-	word-break: break-word;
-
-	/* Prevent overflow */
-	overflow: hidden;
-
-	/* Try to limit to 2 lines, then ellipsis */
-	display: -webkit-box;
-	-webkit-line-clamp: 4;
-	-webkit-box-orient: vertical;
-	text-overflow: ellipsis;
-	font-size: clamp(0.5rem, 2.5vmin, 1.2rem);
 }
 
 .wordList
@@ -118,3 +76,41 @@ summary .join-btn
 	padding: 0.5rem;
 	margin-bottom: 2rem;
 }
+
+.bingo-card
+{
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	aspect-ratio: 1 / 1;
+	max-width: 95vmin;
+	width: 100%;
+	margin: 0 auto;
+	gap: 4px;
+}
+
+.bingo-card > div
+{
+	height: 100%;
+	aspect-ratio: 1 / 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	border: 1px solid #ccc;
+	background-color: #f5f5f5;
+	padding: 4px;
+}
+
+.bingo-card > div > div
+{
+	hyphens: auto;
+	white-space: normal;
+	word-break: normal;
+	line-break: strict;
+	overflow-wrap: break-word;
+	overflow: hidden;
+	font-size: 0.8rem;
+	font-weight: bold;
+	line-height: 1.2;
+}
+

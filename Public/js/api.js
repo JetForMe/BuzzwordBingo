@@ -39,6 +39,27 @@ export default
 		return player
 	},
 	
+	async getGame(inGameID)
+	{
+		const response = await fetch(`/api/games/${encodeURIComponent(inGameID)}`,
+		{
+			method: "GET",
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Player-ID" : gPlayerID
+			}
+		})
+
+		if (!response.ok)
+		{
+			throw new Error(`Error fetching PlayerCard: ${response.status}`)
+		}
+
+		const game = await response.json()
+		return game
+	},
+	
 	async getPlayerCard(inGameID)
 	{
 		const response = await fetch(`/api/games/${encodeURIComponent(inGameID)}/card`,
