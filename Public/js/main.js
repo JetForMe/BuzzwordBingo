@@ -319,6 +319,7 @@ renderCard(inCard)
 	{
 		const cell = document.createElement("div")
 		card.appendChild(cell)
+		cell.dataset.id = word.id
 		
 		const cellContent = document.createElement("div")
 		cell.appendChild(cellContent)
@@ -331,6 +332,19 @@ renderCard(inCard)
 //	{
 //		document.querySelectorAll('.bingo-card > div').forEach(shrinkToFitCard);
 //	})
+	
+	//	Add tap handler to each cell…
+	
+	document.querySelectorAll(".bingo-card > div").forEach(cell =>
+	{
+		cell.addEventListener("click", () =>
+		{
+			const phrase = cell.textContent.trim();
+			const wordId = cell.dataset.id
+			console.log("Cell clicked:", wordId);
+			// Do whatever you need with the phrase or cell
+		})
+	})
 }
 
 function shrinkToFitCard(container, minFontSize = 8, step = 0.5) {

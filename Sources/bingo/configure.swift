@@ -108,6 +108,7 @@ configureDatabase(_ inApp: Application)
 	{
 		inApp.migrations.add(SeedGames())
 		inApp.migrations.add(SeedPlayers())
+		inApp.migrations.add(SeedCards())
 	}
 	
 	//	Run automigration in dev and testing environments…

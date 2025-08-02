@@ -17,6 +17,7 @@ enum
 ApplicationError : AppError
 {
 	case gameHasNoWords
+	case invalidID(String)
 	case notFound(String?)
 	case playerRequired
 }
@@ -25,11 +26,13 @@ ApplicationError : AppError
 extension
 ApplicationError : AbortError
 {
-	var status: HTTPResponseStatus
+	var
+	status: HTTPResponseStatus
 	{
 		switch self
 		{
 			case .gameHasNoWords:					return .unprocessableEntity
+			case .invalidID:						return .badRequest
 			case .playerRequired:					return .badRequest
 			case .notFound:							return .notFound
 		}
@@ -41,6 +44,7 @@ ApplicationError : AbortError
         switch self
         {
         	case .gameHasNoWords:					return "Game has no words from which to generate a Card"
+			case .invalidID(let s):					return "Invalid ID \"\(s)\""
 			case .notFound(nil):					return "Not Found"
 			case .notFound(let msg?):				return "\(msg)"
 			case .playerRequired:					return "A Player is required in this request"
@@ -53,6 +57,7 @@ ApplicationError : AbortError
         switch self
         {
 			case .gameHasNoWords:					return "gameHasNoWords"
+			case .invalidID:						return "invalidID"
 			case .notFound:							return "notFound"
 			case .playerRequired:					return "playerRequired"
 		}

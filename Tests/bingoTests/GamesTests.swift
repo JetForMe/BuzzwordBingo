@@ -44,13 +44,14 @@ GamesTests
 		try await withApp(configure: configure)
 		{ inApp in
 			try await inApp.testing().test(.GET,
-											"/api/games/shatner2025",
+											"/api/games/\(kGameIDShatner2025.uuidString)",
 											afterResponse:
 											{ inResp async throws in
 												#expect(inResp.status == .ok)
 												let game = try inResp.content.decode(GameDTO.self)
 												#expect(game.name == "shatner2025")
 												#expect(game.displayName == "Shatner 2025")
+												#expect(game.words.count == 28)
 											})
 		}
 	}

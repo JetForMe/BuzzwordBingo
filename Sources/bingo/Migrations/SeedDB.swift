@@ -15,8 +15,14 @@ import Fluent
 
 
 
+let kGameIDShatner2025					=	UUID("6C737A65-5371-4762-94E7-AD59E400803E")!
+let kGameIDShatner2024					=	UUID("58F5F6F5-7A0E-4DA2-ABA5-8398758ACE4F")!
 
+let kPlayerIDGregory					=	UUID("035681DF-03EB-44F0-B7D1-4552BD6678AC")!
 
+let kWordIDTrees						=	UUID("39732854-1671-4A05-B290-03081F9A9068")!
+let kWordIDHorses						=	UUID("2D2E8DEF-CE96-4B39-918E-87B9689AC76E")!
+let kWordIDWhat							=	UUID("08B751C5-2861-4E50-BB9C-7FA94614D24F")!
 
 
 struct
@@ -29,8 +35,8 @@ SeedGames : AsyncMigration
 	let
 	games: [(UUID, String, Date)] =
 	[
-		(UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Shatner 2025", Date()),
-		(UUID("58F5F6F5-7A0E-4DA2-ABA5-8398758ACE4F")!, "Shatner 2024", Date(timeIntervalSinceNow: -3600.0 * 24 * 365)),
+		(kGameIDShatner2025, "Shatner 2025", Date()),
+		(kGameIDShatner2024, "Shatner 2024", Date(timeIntervalSinceNow: -3600.0 * 24 * 365)),
 	]
 	
 	/**
@@ -40,9 +46,9 @@ SeedGames : AsyncMigration
 	let
 	words: [(UUID, UUID, String)] =
 	[
-		(UUID("39732854-1671-4A05-B290-03081F9A9068")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Trees"),
-		(UUID("2D2E8DEF-CE96-4B39-918E-87B9689AC76E")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Horses"),
-		(UUID("08B751C5-2861-4E50-BB9C-7FA94614D24F")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Aliens"),
+		(kWordIDTrees, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Trees"),
+		(kWordIDHorses, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Horses"),
+		(kWordIDWhat, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Aliens"),
 		(UUID("93355D58-4201-46DC-B2CB-6983D6E1BAA2")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "What?"),
 		(UUID("1832FE5A-5C76-461A-BE43-C1780568C6F5")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Intimidation"),
 		(UUID("5D252992-AEB4-4CBD-AC9D-44335A94211C")!, UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Set"),
@@ -119,7 +125,7 @@ SeedPlayers : AsyncMigration
 	let
 	defaults: [(UUID, String)] =
 	[
-		(UUID("035681DF-03EB-44F0-B7D1-4552BD6678AC")!, "Gregöry"),
+		(kPlayerIDGregory, "Gregöry"),
 	]
 	
 	func
@@ -146,3 +152,88 @@ SeedPlayers : AsyncMigration
 	}
 }
 
+struct
+SeedCards : AsyncMigration
+{
+	/**
+		(ID, gameID, playerID)
+	*/
+	
+	let
+	cards: [(UUID, UUID, UUID)] =
+	[
+		(UUID("55E34295-1CFA-4AE8-BC29-C98391779DDD")!, kGameIDShatner2025, kPlayerIDGregory),
+	]
+	
+	/**
+		(ID, cardID, wordID, sequence, marked)
+	*/
+	
+	let
+	cardsWords: [(UUID, UUID, UUID, Int, Bool)] =
+	[
+		(UUID("DE62A33D-2C49-4E38-A262-0EA2F48A7F22")!, UUID("55E34295-1CFA-4AE8-BC29-C98391779DDD")!, kWordIDTrees, 0, false),
+		(UUID("C45D4FBA-88C9-43C9-985C-1416C15B6DD5")!, UUID("55E34295-1CFA-4AE8-BC29-C98391779DDD")!, kWordIDHorses, 1, false),
+		(UUID("A42A1A91-AEEC-44BC-8F0E-98BB58A804CA")!, UUID("55E34295-1CFA-4AE8-BC29-C98391779DDD")!, kWordIDWhat, 2, false),
+	]
+	
+	func
+	prepare(on inDB: any Database)
+		async
+		throws
+	{
+		for (id, gameID, playerID) in self.cards
+		{
+			let r = Card(id: id, gameID: gameID, playerID: playerID)
+			try await r.save(on: inDB)
+		}
+		for (id, cardID, wordID, sequence, marked) in self.cardsWords
+		{
+			let r = CardWord(id: id, cardID: cardID, wordID: wordID, sequence: sequence, marked: marked)
+			try await r.save(on: inDB)
+		}
+	}
+
+	func
+	revert(on inDB: any Database)
+		async
+		throws
+	{
+		//	CardWords should be deleted by cascade…
+		
+		for (inID, _, _) in self.cards
+		{
+			try await Player.query(on: inDB).filter(\.$id == inID).delete()
+		}
+	}
+}
+
+extension
+Card
+{
+	convenience
+	init(id: UUID, gameID: UUID, playerID: UUID)
+	{
+		self.init()
+		
+		self.id = id
+		self.$game.id = gameID
+		self.$player.id = playerID
+	}
+}
+
+extension
+CardWord
+{
+	convenience
+	init(id: UUID? = nil, cardID: UUID, wordID: UUID, sequence: Int, marked: Bool? = nil)
+	{
+		self.init()
+		
+		self.id = id
+		self.$card.id = cardID
+		self.$word.id = wordID
+		self.sequence = sequence
+		self.marked = marked
+	}
+}

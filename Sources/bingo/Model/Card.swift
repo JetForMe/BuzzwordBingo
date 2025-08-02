@@ -69,6 +69,22 @@ CardWord : Model, @unchecked Sendable
 extension
 Card
 {
+	static
+	func
+	find(id inID: UUID, on inDB: any Database)
+		async
+		throws
+		-> Card?
+	{
+		let result = try await Card
+								.query(on: inDB)
+								.filter(\.$id == inID)
+								.with(\.$words) { $0.with(\.$word) }
+								.first()
+		
+		return result
+	}
+	
 	/**
 		Returns the ``Card`` for the given ``gameID`` and ``playerID``.
 	*/
