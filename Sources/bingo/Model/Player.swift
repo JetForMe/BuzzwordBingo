@@ -36,7 +36,7 @@ Player : Model, @unchecked Sendable
 	{
 		self.id = id
 		self.name = name
-		self.username = name.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+		self.username = name.toUsername()
 	}
 }
 
@@ -72,7 +72,7 @@ Player
 		throws
 		-> Player?
 	{
-		let username = inName.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+		let username = inName.toUsername()
 		let result = try await Player
 								.query(on: inDB)
 								.filter(\.$username == username)

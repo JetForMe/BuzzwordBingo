@@ -156,7 +156,16 @@ updateUI()
 	{
 		playerNameElement.textContent = null
 	}
-
+	
+	//	If there’s a game, set it on the card view…
+	
+	const game = JSON.parse(localStorage.getItem("currentGame"))
+	if (game)
+	{
+		const gn = document.getElementById("gameName")
+		gn.textContent = game.displayName
+	}
+	
 	//	Set up the Login/Logout button…
 	
 	const authLink = document.getElementById("auth-link")
@@ -169,6 +178,8 @@ updateUI()
 			localStorage.removeItem("playerID")
 			localStorage.removeItem("playerName")
 			localStorage.removeItem("playerCard")
+			localStorage.removeItem("currentGame")
+			localStorage.removeItem("currentGameID")
 			location.reload()
 		}
 	}
@@ -222,7 +233,8 @@ async function
 joinGame(inGameID)
 {
 	localStorage.setItem("currentGameID", inGameID)
-	loadCurrentGame()
+	await loadCurrentGame()
+	await updateUI()
 }
 
 async function
@@ -235,7 +247,7 @@ loadCurrentGame()
 	}
 	
 	const game = await api.getGame(gameID)
-	localStorage.setIem("currentGame", game)
+	localStorage.setItem("currentGame", JSON.stringify(game))
 	
 	const card = await api.getPlayerCard(gameID)
 	localStorage.setItem("playerCard", JSON.stringify(card))

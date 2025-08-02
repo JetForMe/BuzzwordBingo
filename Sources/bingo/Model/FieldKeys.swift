@@ -13,6 +13,7 @@ FieldKey
 {
 	static var	cardID							:	Self { "cardID" }
 	static var	created							:	Self { "created" }
+	static var	displayName						:	Self { "displayName" }
 	static var	gameID							:	Self { "gameID" }
 	static var	marked							:	Self { "marked" }
 	static var	name							:	Self { "name" }

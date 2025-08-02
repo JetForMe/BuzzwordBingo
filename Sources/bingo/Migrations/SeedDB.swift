@@ -29,8 +29,8 @@ SeedGames : AsyncMigration
 	let
 	games: [(UUID, String, Date)] =
 	[
-		(UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Shatner2025", Date()),
-		(UUID("58F5F6F5-7A0E-4DA2-ABA5-8398758ACE4F")!, "Shatner2024", Date(timeIntervalSinceNow: -3600.0 * 24 * 365)),
+		(UUID("6C737A65-5371-4762-94E7-AD59E400803E")!, "Shatner 2025", Date()),
+		(UUID("58F5F6F5-7A0E-4DA2-ABA5-8398758ACE4F")!, "Shatner 2024", Date(timeIntervalSinceNow: -3600.0 * 24 * 365)),
 	]
 	
 	/**
@@ -79,7 +79,7 @@ SeedGames : AsyncMigration
 		
 		for (inID, inName, inCreated) in self.games
 		{
-			let r = Game(id: inID, name: inName, created: inCreated)
+			let r = Game(id: inID, displayName: inName, created: inCreated)
 			try await r.save(on: inDB)
 		}
 		

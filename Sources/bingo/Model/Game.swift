@@ -18,19 +18,21 @@ Game : Model, @unchecked Sendable
 	static let schema = "Game"
 	
 	@ID(key: .id)					var id				:	UUID?
-	@Field(key: "name")				var name			:	String
-	@Field(key: "created")			var created			:	Date
+	@Field(key: .name)				var name			:	String
+	@Field(key: .displayName)		var displayName		:	String
+	@Field(key: .created)			var created			:	Date
 	@Children(for: \.$game)			var words			:	[GameWord]
 	
 	init() {}
 	
 	init(
 		id: UUID? = nil,
-		name: String,
+		displayName: String,
 		created: Date = Date())
 	{
 		self.id = id
-		self.name = name
+		self.displayName = displayName
+		self.name = displayName.toUsername()
 		self.created = created
 	}
 }
@@ -44,7 +46,7 @@ GameWord : Model, @unchecked Sendable
 	
 	@ID(key: .id)					var id				:	UUID?
 	@Parent(key: .gameID)			var game			:	Game
-	@Field(key: "word")				var word			:	String
+	@Field(key: .word)				var word			:	String
 	
 	init() {}
 	
@@ -95,14 +97,15 @@ Game
 	
 	static
 	func
-	find(name inName: String, on inDB: any Database)
+	find(displayName inDisplayName: String, on inDB: any Database)
 		async
 		throws
 		-> Game?
 	{
+		let name = inDisplayName.toUsername()
 		let result = try await Game
 								.query(on: inDB)
-								.filter(\.$name == inName)
+								.filter(\.$name == name)
 								.with(\.$words)
 								.first()
 		return result
@@ -121,7 +124,7 @@ Game
 		}
 		else
 		{
-			return try await Game.find(name: inNameOrID, on: inDB)
+			return try await Game.find(displayName: inNameOrID, on: inDB)
 		}
 	}
 }

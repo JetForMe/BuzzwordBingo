@@ -37,7 +37,7 @@ GamesController : RouteCollection
 						.map
 						{ inGame in
 							let words = try inGame.words.map { try GameWordDTO(id: $0.requireID(), word: $0.word) }
-							let game = try GameDTO(id: inGame.requireID(), name: inGame.name, words: words)
+							let game = try GameDTO(id: inGame.requireID(), name: inGame.name, displayName: inGame.displayName, words: words)
 							return game
 						}
 		return games
@@ -61,7 +61,7 @@ GamesController : RouteCollection
 			}
 			
 			let words = try game.words.map { try GameWordDTO(id: $0.requireID(), word: $0.word) }
-			let dto = try GameDTO(id: game.requireID(), name: game.name, words: words)
+			let dto = try GameDTO(id: game.requireID(), name: game.name, displayName: game.displayName, words: words)
 			return dto
 		}
 	}
@@ -147,6 +147,7 @@ GameDTO : Content
 {
 	var	id			:	UUID
 	var	name		:	String
+	var	displayName	:	String
 	var	words		:	[GameWordDTO]
 }
 

@@ -29,3 +29,23 @@ enum Entrypoint {
         try await app.asyncShutdown()
     }
 }
+
+
+
+
+extension
+String
+{
+	/**
+		Generates a sanitized version of the String: lowercase, no diacriticals, no whitespace.
+	*/
+	
+	func
+	toUsername()
+		-> String
+	{
+		return self
+				.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+				.filter { !$0.isWhitespace }
+	}
+}

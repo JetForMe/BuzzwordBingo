@@ -35,7 +35,7 @@ GamesTests
 		}
 	}
 	
-	@Test("Test GET games/Shatener2025")
+	@Test("Test GET games/shatener2025")
 	func
 	getGameShatner2025()
 		async
@@ -44,12 +44,13 @@ GamesTests
 		try await withApp(configure: configure)
 		{ inApp in
 			try await inApp.testing().test(.GET,
-											"/api/games/Shatner2025",
+											"/api/games/shatner2025",
 											afterResponse:
 											{ inResp async throws in
 												#expect(inResp.status == .ok)
 												let game = try inResp.content.decode(GameDTO.self)
-												#expect(game.name == "Shatner2025")
+												#expect(game.name == "shatner2025")
+												#expect(game.displayName == "Shatner 2025")
 											})
 		}
 	}

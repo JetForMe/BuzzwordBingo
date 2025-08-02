@@ -29,6 +29,7 @@ CreateGame: AsyncMigration
 		try await inDB.schema(Game.schema)
 						.id()
 						.field(.name, .string, .required)
+						.field(.displayName, .string, .required)
 						.field(.created, .date, .required)
 						.unique(on: .name)
 						.create()
