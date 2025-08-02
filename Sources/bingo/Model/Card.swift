@@ -86,6 +86,7 @@ Card
 								.filter(\.$player.$id == inPlayerID)
 								.with(\.$words) { $0.with(\.$word) }
 								.all()
+		
 		return result
 	}
 }

@@ -38,6 +38,15 @@ CardsTests
 												#expect(card.gameID == UUID("6C737A65-5371-4762-94E7-AD59E400803E")!)
 												#expect(card.playerID == playerID)
 												#expect(card.words.count == 25)
+												
+												//	Ensure they’re sorted by sequence…
+												
+												var lastSequence = -1
+												for cw in card.words
+												{
+													#expect(lastSequence < cw.sequence)
+													lastSequence = cw.sequence
+												}
 											})
 		}
 	}

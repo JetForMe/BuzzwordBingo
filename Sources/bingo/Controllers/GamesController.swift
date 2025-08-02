@@ -155,6 +155,7 @@ struct
 CardWordDTO : Content
 {
 	var	id			:	UUID
+	var	sequence	:	Int
 	var	word		:	String
 	var	marked		:	Bool?
 }
@@ -168,7 +169,9 @@ CardDTO
 		self.id = try card.requireID()
 		self.gameID = card.$game.id
 		self.playerID = card.$player.id
-		self.words = try card.words.map { try CardWordDTO(cardWord: $0) }
+		self.words = try card.words
+							.sorted(by: { $0.sequence < $1.sequence })
+							.map { try CardWordDTO(cardWord: $0) }
 	}
 }
 
@@ -179,6 +182,7 @@ CardWordDTO
 		throws
 	{
 		self.id = try cardWord.requireID()
+		self.sequence = cardWord.sequence
 		self.word = cardWord.word.word
 		self.marked = cardWord.marked
 	}

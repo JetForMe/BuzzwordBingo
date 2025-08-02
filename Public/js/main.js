@@ -4,64 +4,67 @@ document.addEventListener("DOMContentLoaded", () =>
 {
 	(async () =>
 	{
+		const playerID = localStorage.getItem("playerID")
+		api.setPlayerID(playerID)
+		
 		await updateUI()
 		await showDefaultView()
 		
 		//	The Games button…
 		
-		const gamesLink = document.getElementById("games-link");
+		const gamesLink = document.getElementById("games-link")
 		gamesLink.onclick = (e) =>
 		{
-			e.preventDefault();
+			e.preventDefault()
 			showView("games-view")
-		};
+		}
 		
 		//	The login submit button…
 		
-		const loginSubmit = document.getElementById("login-submit");
+		const loginSubmit = document.getElementById("login-submit")
 		loginSubmit.onclick = (e) =>
 		{
-			e.preventDefault();
+			e.preventDefault()
 			login()
-		};
+		}
 		
 		//	Temp card button…
 		
-		const cardLink = document.getElementById("card-link");
+		const cardLink = document.getElementById("card-link")
 		cardLink.onclick = (e) =>
 		{
-			e.preventDefault();
+			e.preventDefault()
 			showView("card-view")
-		};
+		}
 		
-	})();
-});
+	})()
+})
 
 async function showView(viewId)
 {
-	const current = document.querySelector(".view.active");
-	const next = document.getElementById(viewId);
+	const current = document.querySelector(".view.active")
+	const next = document.getElementById(viewId)
 
 	if (current === next)
 	{
-		return;
+		return
 	}
 
 	if (current)
 	{
-		current.style.opacity = 0;
+		current.style.opacity = 0
 		await updateView(viewId)
 		setTimeout(() =>
 		{
-			current.classList.remove("active");
-			next.classList.add("active");
-			requestAnimationFrame(() => next.style.opacity = 1);
-		}, 200); // matches transition duration
+			current.classList.remove("active")
+			next.classList.add("active")
+			requestAnimationFrame(() => next.style.opacity = 1)
+		}, 200) // matches transition duration
 	}
 	else
 	{
-		next.classList.add("active");
-		requestAnimationFrame(() => next.style.opacity = 1);
+		next.classList.add("active")
+		requestAnimationFrame(() => next.style.opacity = 1)
 	}
 }
 
@@ -79,46 +82,48 @@ async function updateView(inViewID)
 				{
 					"Accept": "application/json"
 				}
-			});
+			})
 
 			if (!response.ok)
 			{
-				throw new Error(`Server returned ${response.status}`);
+				throw new Error(`Server returned ${response.status}`)
 			}
 
-			const games = await response.json();
+			const games = await response.json()
 			console.log("Games: " + JSON.stringify(games))
 			renderGamesList(games)
 		}
 		
 		catch (err)
 		{
-			console.error("get games failed:", err);
-			alert("get games failed. Please try again.");
+			console.error("get games failed:", err)
+			alert("get games failed. Please try again.")
 		}
 	}
 }
 
 async function login()
 {
-	const input = document.getElementById("username");
-	const username = input.value.trim();
+	const input = document.getElementById("username")
+	const username = input.value.trim()
 
 	if (!username || username.length < 3)
 	{
-		alert("Please enter a name at least three characters long.");
-		return;
+		alert("Please enter a name at least three characters long.")
+		return
 	}
 
 	try
 	{
 		const player = await api.login(username)
 		
-		// Store player ID (or whatever else you need)
-		localStorage.setItem("playerID", player.id);
-
+		// Store player ID (or whatever else you need)…
+		
+		localStorage.setItem("playerID", player.id)
+		api.setPlayerID(player.id)
+		
 		// Optionally store the name too
-		localStorage.setItem("playerName", player.name);
+		localStorage.setItem("playerName", player.name)
 
 		// Move to game list view or whatever's next
 		await updateUI()
@@ -127,16 +132,16 @@ async function login()
 	
 	catch (err)
 	{
-		console.error("Login failed:", err);
-		alert("Login failed. Please try again.");
+		console.error("Login failed:", err)
+		alert("Login failed. Please try again.")
 	}
 }
 
 async function
 updateUI()
 {
-	const playerID = localStorage.getItem("playerID");
-	const playerName = localStorage.getItem("playerName");
+	const playerID = localStorage.getItem("playerID")
+	const playerName = localStorage.getItem("playerName")
 
 	//	Show the player name (if any)…
 	
@@ -152,26 +157,27 @@ updateUI()
 
 	//	Set up the Login/Logout button…
 	
-	const authLink = document.getElementById("auth-link");
+	const authLink = document.getElementById("auth-link")
 	if (playerID)
 	{
-		authLink.textContent = "Logout";
+		authLink.textContent = "Logout"
 		authLink.onclick = (e) =>
 		{
-			e.preventDefault();
-			localStorage.removeItem("playerID");
-			localStorage.removeItem("playerName");
-			location.reload();
-		};
+			e.preventDefault()
+			localStorage.removeItem("playerID")
+			localStorage.removeItem("playerName")
+			localStorage.removeItem("playerCard")
+			location.reload()
+		}
 	}
 	else
 	{
-		authLink.textContent = "Login";
+		authLink.textContent = "Login"
 		authLink.onclick = (e) =>
 		{
-			e.preventDefault();
+			e.preventDefault()
 			showView("login-view")
-		};
+		}
 	}
 }
 
@@ -191,10 +197,18 @@ showDefaultView()
 	//	card-view if logged in and a game is in progress
 	//	games-view if logged in and no game in progress
 	
-	const playerID = localStorage.getItem("playerID");
+	const playerID = localStorage.getItem("playerID")
+	const storedCard = localStorage.getItem("playerCard")
+	const card =  storedCard ? JSON.parse(storedCard) : null
+	
 	if (!playerID)
 	{
 		showView("login-view")
+	}
+	else if (card)
+	{
+		renderCard(card)
+		showView("card-view")
 	}
 	else
 	{
@@ -202,11 +216,22 @@ showDefaultView()
 	}
 }
 
+async function
+joinGame(inGameID)
+{
+	const card = await api.getPlayerCard(inGameID)
+	localStorage.setItem("playerCard", JSON.stringify(card))
+	renderCard(card)
+	showView("card-view")
+}
+
+
+//	MARK: - • Rendering HTML -
 
 function
 renderGamesList(games)
 {
-	const container = document.getElementById("games-list");
+	const container = document.getElementById("games-list")
 	container.innerHTML = ""		//	Clear existing contents
 
 	if (games.length === 0)
@@ -217,8 +242,12 @@ renderGamesList(games)
 
 	games.forEach(game =>
 	{
+		//	Create the accordion…
+		
 		const details = document.createElement("details")
 		details.setAttribute("name", "game")
+		
+		//	Add the summary…
 		
 		const summary = document.createElement("summary")
 		
@@ -230,11 +259,39 @@ renderGamesList(games)
 		const button = document.createElement("button")
 		button.className = "join-btn"
 		button.textContent = "Join"
-		button.onclick = () => joinGame(game.id);
+		button.onclick = () => joinGame(game.id)
 		summary.appendChild(button)
 		
 		details.appendChild(summary)
 		
+		//	Add the word list as a comma-separated paragraph…
+		
+		const words = document.createElement("p")
+		words.className = "wordList"
+		details.appendChild(words)
+		words.textContent = game.words.map(w => w.word).sort().join(", ")
+		
 		container.appendChild(details)
-	});
+	})
+}
+
+function
+renderCard(inCard)
+{
+	const container = document.getElementById("cards")
+	container.innerHTML = ""		//	Clear existing contents
+	
+	const card = document.createElement("div")
+	card.className = "bingo-card"
+	container.appendChild(card)
+	
+	inCard.words.forEach(word =>
+	{
+		const cell = document.createElement("div")
+		card.appendChild(cell)
+		
+		const cellContent = document.createElement("div")
+		cell.appendChild(cellContent)
+		cellContent.textContent = word.word
+	})
 }
