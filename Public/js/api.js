@@ -5,6 +5,7 @@
 //  Created by Rick Mann on 2025-08-01.
 //
 
+console.log("api.js loaded");
 
 let gPlayerID = null
 
@@ -75,6 +76,31 @@ export default
 		if (!response.ok)
 		{
 			throw new Error(`Error fetching PlayerCard: ${response.status}`)
+		}
+
+		const card = await response.json()
+		return card
+	},
+	
+	async markCard(inCardID, inSequence, inMark)
+	{
+		const response = await fetch(`/api/cards/${encodeURIComponent(inCardID)}/words/${encodeURIComponent(inSequence)}`,
+		{
+			method: "PUT",
+			headers:
+			{
+				"Content-Type": "application/json",
+				"Player-ID" : gPlayerID
+			},
+			body: JSON.stringify(
+			{
+				setMarked: inMark
+			})
+		})
+
+		if (!response.ok)
+		{
+			throw new Error(`Error marking PlayerCard: ${response.status}`)
 		}
 
 		const card = await response.json()

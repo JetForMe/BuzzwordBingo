@@ -106,3 +106,30 @@ Card
 		return result
 	}
 }
+
+
+
+extension
+CardWord
+{
+	/**
+		Returns the ``CardWord`` for the given ``cardID`` and ``sequence``.
+	*/
+	
+	static
+	func
+	find(cardID inCardID: UUID, sequence inSequence: Int, on inDB: any Database)
+		async
+		throws
+		-> CardWord?
+	{
+		let result = try await CardWord
+								.query(on: inDB)
+								.filter(\.$card.$id == inCardID)
+								.filter(\.$sequence == inSequence)
+								.with(\.$word)
+								.first()
+		
+		return result
+	}
+}

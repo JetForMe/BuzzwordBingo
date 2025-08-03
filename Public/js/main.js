@@ -54,6 +54,13 @@ async function showView(viewId)
 
 	if (current)
 	{
+		if (current.id == "card-view" && gWebsocket)
+		{
+			const ws = gWebsocket
+			gWebsocket = null
+			ws.close()
+		}
+		
 		current.style.opacity = 0
 		await updateView(viewId)
 		setTimeout(() =>
@@ -237,6 +244,8 @@ joinGame(inGameID)
 	await updateUI()
 }
 
+let	gWebsocket = null
+
 async function
 loadCurrentGame()
 {
@@ -253,6 +262,71 @@ loadCurrentGame()
 	localStorage.setItem("playerCard", JSON.stringify(card))
 	renderCard(card)
 	showView("card-view")
+	
+	//	Connect to the card’s websocket…
+	
+	openWebsocket(card.id)
+}
+
+function
+openWebsocket(inCardID)
+{
+	//	Close any existing websocket…
+	
+	if (gWebsocket)
+	{
+		const ws = gWebsocket
+		gWebsocket = null
+		ws.close()
+	}
+	
+	//	Open the new one…
+	
+	const proto = location.protocol === "https:" ? "wss" : "ws"
+	gWebsocket = new WebSocket(`${proto}://${location.host}/api/cards/${inCardID}`)
+	gWebsocket.addEventListener("open",
+		(inEvent) =>
+		{
+			console.log("websocket opened")
+		})
+	
+	gWebsocket.addEventListener("close",
+		(inEvent) =>
+		{
+			console.log("websocket closed", JSON.stringify(inEvent))
+			console.log("gWebsocket: ", gWebsocket ? "yes" : "null")
+			
+			//	If there’s still a websocket, it wasn't intentionally
+			//	closed, so reconnect…
+			
+			if (gWebsocket)
+			{
+				setTimeout(() => { openWebsocket(inCardID) }, 1000)
+			}
+		})
+	
+	gWebsocket.addEventListener("error",
+		(inEvent) =>
+		{
+			console.log("websocket error: ", JSON.stringify(inEvent))
+		})
+	
+	gWebsocket.addEventListener("message",
+		(inEvent) =>
+		{
+			console.log("websocket message received: ", inEvent.data)
+			
+			let event = JSON.parse(inEvent.data)
+			if (event.cardID != inCardID)
+			{
+				console.log(`Event for another card: ${event.cardID}; our card: ${inCardID}`)		//	TODO: Do we want everyone to get this event?
+				return
+			}
+			
+			const cardsElem = document.getElementById("cards")
+			const cardCell = cardsElem.querySelector(`[data-sequence="${event.sequence}"]`)
+			cardCell.dataset.marked = event.marked
+		})
 }
 
 
@@ -317,9 +391,21 @@ renderCard(inCard)
 	
 	inCard.words.forEach(word =>
 	{
+		//	Create the cell…
+		
 		const cell = document.createElement("div")
 		card.appendChild(cell)
-		cell.dataset.id = word.id
+		cell.dataset.sequence = word.sequence
+		if (word.marked)
+		{
+			cell.dataset.marked = word.marked
+		}
+		
+		//	Add the checkmark…
+		
+		//cell.insertAdjacentHTML("afterbegin", `<span>✔︎</span>`);
+		
+		//	Add the actual word text…
 		
 		const cellContent = document.createElement("div")
 		cell.appendChild(cellContent)
@@ -337,12 +423,16 @@ renderCard(inCard)
 	
 	document.querySelectorAll(".bingo-card > div").forEach(cell =>
 	{
-		cell.addEventListener("click", () =>
+		cell.addEventListener("click", async (inEvent) =>
 		{
-			const phrase = cell.textContent.trim();
-			const wordId = cell.dataset.id
-			console.log("Cell clicked:", wordId);
-			// Do whatever you need with the phrase or cell
+			const sequence = cell.dataset.sequence
+			console.log("Cell clicked:", sequence, ", marked before: ", cell.dataset.marked)
+			let newMark = true
+			if (cell.dataset.marked == "true")
+			{
+				newMark = false
+			}
+			const cw = await api.markCard(inCard.id, sequence, newMark)
 		})
 	})
 }

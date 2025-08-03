@@ -6,8 +6,9 @@ Super-simple Bingo game webapp.
 
 1. Register
 2. Create a Game
-3. Join a Game
-4. Mark a cell
+3. Start/End a Game
+4. Join a Game
+5. Mark a cell
 
 ### 1. Registration
 
@@ -27,14 +28,20 @@ deleted and new ones created.
 
 > **TODO:** Preserve marked words?
 
-### 3. Join a Game
+### 3. Start or End a Game
+
+Should probably add the ability to start, or at least end, a game (so people
+can't change it later).
+
+
+### 4. Join a Game
 
 `PUT /api/games/<gameID>/players` with the `PlayerID`.
 
 This operation is idempotent. A `Card` is created for the game and player
 if one does not already exist, and is returned.
 
-### 4. Mark (or Unmark) a Cell
+### 5. Mark (or Unmark) a Cell
 
 `PUT /api/card/<cardID>/<index>/mark`
 `DELETE /api/card/<cardID>/<index>/mark`

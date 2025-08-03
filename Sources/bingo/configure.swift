@@ -63,6 +63,11 @@ configure(_ inApp: Application)
 	
 	try await configureDatabase(inApp)
 	
+	//	Create and store the game engine…
+	
+	let bingo = Bingo(db: inApp.db)
+	inApp.storage[BingoKey.self] = bingo
+	
 	//	Register routes…
 	
 	try routes(inApp)
@@ -122,7 +127,22 @@ configureDatabase(_ inApp: Application)
 }
 
 
+private
+struct
+BingoKey : StorageKey
+{
+	typealias Value = Bingo
+}
 
+extension
+Request
+{
+	var
+	bingo: Bingo
+	{
+		self.application.storage[BingoKey.self]!		//	Force-unwrap, because Bingo must be created during app configuration
+	}
+}
 
 fileprivate
 let
