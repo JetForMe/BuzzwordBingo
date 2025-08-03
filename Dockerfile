@@ -26,9 +26,9 @@ COPY . .
 # Build the application, with optimizations, with static linking, and using jemalloc
 # N.B.: The static version of jemalloc is incompatible with the static Swift runtime.
 RUN swift build -c release \
-        --product bingo \
-        --static-swift-stdlib \
-        -Xlinker -ljemalloc
+				--product bingo \
+				--static-swift-stdlib \
+				-Xlinker -ljemalloc
 
 # Switch to the staging area
 WORKDIR /staging

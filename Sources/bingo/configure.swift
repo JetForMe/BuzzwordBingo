@@ -4,7 +4,7 @@ import Logging
 import Vapor
 
 
-import Path
+import SwiftPath
 
 
 
@@ -20,33 +20,25 @@ configure(_ inApp: Application)
 	
 	sLogger.info("Working directory:      \(inApp.directory.workingDirectory)")
 	sLogger.info("Path working directory: \(Path.cwd)")
-	sLogger.info("PUBLIC_DIR:             \(String(describing: Environment.get("PUBLIC_DIR")))")
 	
 	//	Register our Player injection middleware…
 	
 	inApp.middleware.use(PlayerMiddleware())
 	
 	//	Register static file middleware…
-	//	(this bullshit to find the source Public/ folder, since Xcode can't behave…)
 	
-	let publicDir: String = {
-		// This will be something like ".../Sources/App/configure.swift"
-		let filePath = #filePath
-		let projectRoot = URL(fileURLWithPath: filePath)
-			.deletingLastPathComponent() // remove <filename>
-			.deletingLastPathComponent() // remove "App"
-			.deletingLastPathComponent() // remove "Sources"
-			.path
-
-		return projectRoot + "/Public/"
-	}()
-	sLogger.info("Resolved publicDir:     \(publicDir)")
 	
-	inApp.middleware.use(FileMiddleware(publicDirectory: publicDir))
+	let configuredPublicDir = Environment.get("PUBLIC_DIR")
+	sLogger.info("PUBLIC_DIR:             \(String(describing: configuredPublicDir))")
+	let publicDir = Path(configuredPublicDir ?? (Path.cwd / "Public").string)!
+	sLogger.info("Resolved PUBLIC_DIR:    \(publicDir)")
+	
+	inApp.middleware.use(FileMiddleware(publicDirectory: publicDir.string))
 	inApp.get
 	{ inReq in
 		sLogger.info("public dir: \(publicDir)")
-		return try await inReq.fileio.asyncStreamFile(at: publicDir + "index.html")
+		let indexPath = publicDir / "index.html"
+		return try await inReq.fileio.asyncStreamFile(at: indexPath.string)
 	}
 	
 	//	Configure how we encode dates…
@@ -65,7 +57,7 @@ configure(_ inApp: Application)
 	
 	//	Create and store the game engine…
 	
-	let bingo = Bingo(db: inApp.db)
+	let bingo = BingoEngine(db: inApp.db)
 	inApp.storage[BingoKey.self] = bingo
 	
 	//	Register routes…
@@ -90,7 +82,7 @@ configureDatabase(_ inApp: Application)
 		let dataDir = Path(configuredDataDir ?? (Path.cwd / "data").string)!
 		sLogger.info("Resolved DATA_DIR:      \(dataDir)")
 		let dbPath = Path(Environment.get("SQLITE_DB_PATH") ?? (dataDir/"db.sqlite").string)!
-		print("DB path: \(dbPath)")
+		sLogger.info("DB path:                \(dbPath)")
 		inApp.databases.use(.sqlite(.file(dbPath.string), sqlLogLevel: .debug), as: .sqlite)
 		//	TODO: For testing deadlock issues:
 //		inApp.databases.use(.postgres(hostname: "localhost", username: "vapor_username", password: "vapor_password", database: "vapor_database"), as: .psql)
@@ -100,9 +92,12 @@ configureDatabase(_ inApp: Application)
 	//
 	//	Note: These need to be done in this order,
 
+	inApp.migrations.add(CreateEnums())
 	inApp.migrations.add(CreateGame())
 	inApp.migrations.add(CreateGameWord())
 	inApp.migrations.add(CreatePlayer())
+	inApp.migrations.add(CreatePlayerScore())
+	inApp.migrations.add(CreateBingo())
 	inApp.migrations.add(CreateCard())
 	inApp.migrations.add(CreateCardWord())
 
@@ -131,14 +126,14 @@ private
 struct
 BingoKey : StorageKey
 {
-	typealias Value = Bingo
+	typealias Value = BingoEngine
 }
 
 extension
 Request
 {
 	var
-	bingo: Bingo
+	bingo: BingoEngine
 	{
 		self.application.storage[BingoKey.self]!		//	Force-unwrap, because Bingo must be created during app configuration
 	}
@@ -147,3 +142,5 @@ Request
 fileprivate
 let
 sLogger = Logger(label: "configure.swift")
+
+

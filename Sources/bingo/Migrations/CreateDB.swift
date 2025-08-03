@@ -55,7 +55,7 @@ CreateGameWord: AsyncMigration
 	{
 		try await inDB.schema(GameWord.schema)
 						.id()
-						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .setNull), .required)
+						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .cascade), .required)
 						.field(.word, .string, .required)
 						.unique(on: .gameID, .word)
 						.create()
@@ -108,9 +108,9 @@ CreateCard : AsyncMigration
 	{
 		try await inDB.schema(Card.schema)
 						.id()
-						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .setNull), .required)
-						.field(.playerID, .uuid, .references(Player.schema, .id, onDelete: .setNull), .required)
-						.unique(on: .gameID, .playerID)
+						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .cascade), .required)
+						.field(.playerID, .uuid, .references(Player.schema, .id, onDelete: .cascade), .required)
+						.unique(on: .gameID, .playerID)			//	TODO: Forces a single card per game, do we want this constraint?
 						.create()
 	}
 
@@ -135,8 +135,8 @@ CreateCardWord : AsyncMigration
 	{
 		try await inDB.schema(CardWord.schema)
 						.id()
-						.field(.cardID, .uuid, .references(Card.schema, .id, onDelete: .setNull), .required)
-						.field(.wordID, .uuid, .references(GameWord.schema, .id, onDelete: .setNull), .required)
+						.field(.cardID, .uuid, .references(Card.schema, .id, onDelete: .cascade), .required)
+						.field(.wordID, .uuid, .references(GameWord.schema, .id, onDelete: .cascade), .required)
 						.field(.sequence, .int, .required)
 						.field(.marked, .bool)
 						.create()
@@ -151,4 +151,61 @@ CreateCardWord : AsyncMigration
 	}
 }
 
+
+struct
+CreatePlayerScore : AsyncMigration
+{
+	func
+	prepare(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.schema(PlayerScore.schema)
+						.id()
+						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .cascade), .required)
+						.field(.playerID, .uuid, .references(Player.schema, .id, onDelete: .cascade), .required)
+						.field(.score, .int, .required)
+						.unique(on: .gameID, .playerID)
+						.create()
+	}
+
+	func
+	revert(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.schema(PlayerScore.schema).delete()
+	}
+}
+
+
+struct
+CreateBingo : AsyncMigration
+{
+	func
+	prepare(on inDB: any Database)
+		async
+		throws
+	{
+		let tEB = inDB.enum(String(describing: Bingo.BingoType.self))		//	TODO: Do we want to write this in the log?
+		let tType = try await tEB.read()
+		
+		try await inDB.schema(Bingo.schema)
+						.id()
+						.field(.cardID, .uuid, .references(Card.schema, .id, onDelete: .cascade), .required)
+						.field(.type, tType, .required)
+						.field(.index, .int)
+						.field(.timestamp, .datetime, .required)
+						.unique(on: .cardID, .type, .index)
+						.create()
+	}
+
+	func
+	revert(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.schema(Bingo.schema).delete()
+	}
+}
 

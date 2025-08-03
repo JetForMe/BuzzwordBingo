@@ -11,6 +11,36 @@ import Fluent
 
 
 
+
+struct
+CreateEnums: AsyncMigration
+{
+	func
+	prepare(on inDB: Database)
+		async
+		throws
+	{
+		//	BingoType enum…
+
+		var stateEB = inDB.enum(String(describing: Bingo.BingoType.self))
+		for c in Bingo.BingoType.allCases
+		{
+			stateEB = stateEB.case(c.rawValue)
+		}
+		let _ = try await stateEB.create()
+	}
+
+	func
+	revert(on inDB: Database)
+		async
+		throws
+	{
+		try await inDB.enum(String(describing: Bingo.BingoType.self)).delete()
+	}
+}
+
+
+
 final
 class
 Game : Model, @unchecked Sendable
@@ -59,6 +89,55 @@ GameWord : Model, @unchecked Sendable
 	}
 }
 
+final
+class
+PlayerScore : Model, @unchecked Sendable
+{
+	static let schema = "PlayerScore"
+	
+	@ID(key: .id)					var id				:	UUID?
+	@Parent(key: .gameID)			var game			:	Game
+	@Parent(key: .playerID)			var player			:	Player
+	@Field(key: .score)				var score			:	Int
+	
+	init() {}
+	
+	init(id: UUID? = nil, game: Game, player: Player, score: Int)
+	{
+		self.id = id
+		self.game = game
+		self.player = player
+		self.score = score
+	}
+}
+
+
+final
+class
+Bingo : Model, @unchecked Sendable
+{
+	enum
+	BingoType : String, Codable, CaseIterable
+	{
+		case row
+		case column
+		case ulbr					//	Diagonal from upper-left to bottom-right
+		case llur					//	Diagonal from lower-left to upper-right
+		case corners
+	}
+	
+	static let schema = "Bingo"
+	
+	@ID(key: .id)					var id				:	UUID?
+	@Parent(key: .cardID)			var card			:	Card
+	@Enum(key: .type)				var	type			:	BingoType
+	@Field(key: .index)				var index			:	Int
+	@Field(key: .timestamp)			var timestamp		:	Date
+	@Field(key: .verified)			var verified		:	Bool?
+	
+//	init() {}
+	
+}
 
 
 

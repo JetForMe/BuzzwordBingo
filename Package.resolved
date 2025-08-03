@@ -1,5 +1,5 @@
 {
-  "originHash" : "e87b260b08fa6ff438d7943eb3c36099b0033ac24416dff93854e141871741d2",
+  "originHash" : "0c9f3f1ce66b1cd51661df672659644e38ef3d0682aeaa07d6307fb9fd2c417d",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -65,15 +65,6 @@
       }
     },
     {
-      "identity" : "path.swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mxcl/Path.swift.git",
-      "state" : {
-        "revision" : "8e355c28e9393c42e58b18c54cace2c42c98a616",
-        "version" : "1.4.1"
-      }
-    },
-    {
       "identity" : "routing-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/routing-kit.git",
@@ -105,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/sqlite-nio.git",
       "state" : {
-        "revision" : "1c0c6e75859e8f6426b4b53de3169c066509d0ac",
-        "version" : "1.11.7"
+        "revision" : "62d6935d970f6ebfc1f2469e7e813a148147c84d",
+        "version" : "1.11.8"
       }
     },
     {
@@ -296,6 +287,15 @@
       "state" : {
         "revision" : "b63d24d465e237966c3f59f47dcac6c70fb0bca3",
         "version" : "1.6.1"
+      }
+    },
+    {
+      "identity" : "swiftpath",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JetForMe/SwiftPath",
+      "state" : {
+        "branch" : "rmann/sendable",
+        "revision" : "cdcc57676b5bdd896c95334a2dc7af6741cc998d"
       }
     },
     {
