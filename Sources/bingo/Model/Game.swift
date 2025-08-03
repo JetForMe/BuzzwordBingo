@@ -16,7 +16,7 @@ struct
 CreateEnums: AsyncMigration
 {
 	func
-	prepare(on inDB: Database)
+	prepare(on inDB: any Database)
 		async
 		throws
 	{
@@ -31,7 +31,7 @@ CreateEnums: AsyncMigration
 	}
 
 	func
-	revert(on inDB: Database)
+	revert(on inDB: any Database)
 		async
 		throws
 	{
