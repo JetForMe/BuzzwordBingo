@@ -2,7 +2,7 @@
 
 Super-simple Bingo game webapp.
 
-This work is licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). See LICENSE.md for details.
+This work is licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). See [LICENSE.md](LICENSE.md) for details.
 
 ## Mutating Operations
 
