@@ -62,7 +62,7 @@ BingoEngine
 		//	Score the card…
 		
 //		var newBingos = false		//	TODO: Do we need this?
-		let bingos = try await findBingos(inCard: card)
+		let bingos = try findBingos(inCard: card)
 		for bingo in bingos
 		{
 			//	If the Bingo doesn't already exist, save it…
@@ -87,13 +87,16 @@ BingoEngine
 		
 		//	Notify listeners of the events…
 		
-		let gameID = card.$game.id
-		if let clients = self.clients[gameID]
+		Task
 		{
-			//	TODO: task group!
-			for (_, handler) in clients
+			let gameID = card.$game.id
+			if let clients = self.clients[gameID]
 			{
-				try? await handler(gameID, inCardID, inSequence, inMark, playerScore!)
+				//	TODO: task group!
+				for (_, handler) in clients
+				{
+					try? await handler(gameID, inCardID, inSequence, inMark, playerScore!)
+				}
 			}
 		}
 		return cw
@@ -107,7 +110,6 @@ BingoEngine
 	
 	func
 	findBingos(inCard: Card)
-		async
 		throws
 		-> [Bingo]
 	{

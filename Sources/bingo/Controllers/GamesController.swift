@@ -54,8 +54,7 @@ GamesController : RouteCollection
 				throw ApplicationError.notFound("Game \(nameOrID) not found")
 			}
 			
-			let words = try game.words.map { try GameWordDTO(id: $0.requireID(), word: $0.word) }
-			let dto = try GameDTO(id: game.requireID(), name: game.name, displayName: game.displayName, words: words)
+			let dto = try GameDTO(game: game)
 			return dto
 		}
 	}
@@ -143,20 +142,27 @@ GameDTO : Content
 	var	name		:	String
 	var	displayName	:	String
 	var	words		:	[GameWordDTO]
+	var	scores		:	[PlayerScoreDTO]
 	
-	init(id: UUID, name: String, displayName: String, words: [GameWordDTO])
+	init(id: UUID, name: String, displayName: String, words: [GameWordDTO], scores: [PlayerScoreDTO])
 	{
 		self.id = id
 		self.name = name
 		self.displayName = displayName
 		self.words = words
+		self.scores = scores
 	}
 	
 	init(game inGame: Game)
 		throws
 	{
 		let words = try inGame.words.map { try GameWordDTO(id: $0.requireID(), word: $0.word) }
-		self.init(id: try inGame.requireID(), name: inGame.name, displayName: inGame.displayName, words: words)
+		var scores = [PlayerScoreDTO]()
+		if let dbScores = inGame.$scores.value
+		{
+			scores = dbScores.map { PlayerScoreDTO(score: $0) }
+		}
+		self.init(id: try inGame.requireID(), name: inGame.name, displayName: inGame.displayName, words: words, scores: scores)
 	}
 }
 

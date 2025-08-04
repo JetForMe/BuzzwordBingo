@@ -26,6 +26,7 @@ Game : Model, @unchecked Sendable
 	@Field(key: .displayName)		var displayName		:	String
 	@Field(key: .created)			var created			:	Date
 	@Children(for: \.$game)			var words			:	[GameWord]
+	@Children(for: \.$game)			var scores			:	[PlayerScore]
 	
 	init() {}
 	
@@ -107,6 +108,7 @@ Game
 								.query(on: inDB)
 								.filter(\.$id == inID)
 								.with(\.$words)
+								.with(\.$scores) { $0.with(\.$player) }
 								.first()
 		return result
 	}
@@ -123,6 +125,7 @@ Game
 								.query(on: inDB)
 								.filter(\.$name == name)
 								.with(\.$words)
+								.with(\.$scores) { $0.with(\.$player) }
 								.first()
 		return result
 	}

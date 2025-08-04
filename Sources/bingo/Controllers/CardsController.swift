@@ -51,7 +51,11 @@ CardsController : RouteCollection
 				inWS.onClose.whenComplete
 				{ _ in
 					Self.logger.info("Websocket disconnected for cardID \(cardID.uuidString)")
-					//	TODO: remove from Bingo…
+					Task
+					{
+						//	Remove from the BingoEngine…
+						await inReq.bingo.remove(gameID: card.$game.id, clientID: wsID)
+					}
 				}
 				
 				inWS.onText
@@ -65,18 +69,18 @@ CardsController : RouteCollection
 				{ inGameID, inCardID, inSequence, inMarked, inPlayerScore in
 					Self.logger.info("Got game update for client \(wsID.uuidString)")
 					
-					var players: [GamePlayer]?
+					var scores: [PlayerScoreDTO]?
 					if let player = try await Player.find(id: inPlayerScore.$player.id, on: inReq.db)
 					{
-						let gamePlayer = GamePlayer(playerID: inPlayerScore.$player.id, name: player.name, wordScore: inPlayerScore.wordScore, bingoScore: inPlayerScore.bingoScore)
-						players = [gamePlayer]
+						let gamePlayer = PlayerScoreDTO(playerID: inPlayerScore.$player.id, name: player.name, wordScore: inPlayerScore.wordScore, bingoScore: inPlayerScore.bingoScore)
+						scores = [gamePlayer]
 					}
 					else
 					{
 						Self.logger.warning("Expected Player record for playerID \(inPlayerScore.$player.id.uuidString), but none was found")
 					}
 					
-					let event = GameEvent(gameID: inGameID, cardID: inCardID, sequence: inSequence, marked: inMarked, players: players)
+					let event = GameEvent(gameID: inGameID, cardID: inCardID, sequence: inSequence, marked: inMarked, scores: scores)
 					let data = try JSONEncoder().encode(event)
 					let jsonString = String(data: data, encoding: .utf8)!
 					try await inWS.send(jsonString)
@@ -267,14 +271,30 @@ GameEvent : Content
 	var	cardID				:	UUID
 	var	sequence			:	Int
 	var	marked				:	Bool
-	var players				:	[GamePlayer]?
+	var scores				:	[PlayerScoreDTO]?
 }
 
 struct
-GamePlayer : Content
+PlayerScoreDTO : Content
 {
 	var	playerID			:	UUID
 	var	name				:	String
 	var	wordScore			:	Int
 	var	bingoScore			:	Int
+	
+	init(playerID: UUID, name: String, wordScore: Int, bingoScore: Int)
+	{
+		self.playerID = playerID
+		self.name = name
+		self.wordScore = wordScore
+		self.bingoScore = bingoScore
+	}
+	
+	init(score: PlayerScore)
+	{
+		self.playerID = score.$player.id
+		self.name = score.player.name
+		self.wordScore = score.wordScore
+		self.bingoScore = score.bingoScore
+	}
 }

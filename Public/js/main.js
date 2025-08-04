@@ -204,17 +204,50 @@ updateUI()
 }
 
 function
+updateScores(inScores)
+{
+	if (inScores)
+	{
+		inScores.forEach((score) =>
+		{
+//			console.log(`player ${player.playerID} ${player.name}: ${player.wordScore}/${player.bingoScore}`)
+			gScores[score.playerID] = score
+		})
+		
+		updateScoresUI()
+	}
+}
+
+function
 updateScoresUI()
 {
 	const scores = document.getElementById("scores")
 	scores.innerHTML = ""
 	
-	const sorted = Object.values(gScores).sort((a, b) => a.name.localeCompare(b.name));
+	const sorted = Object
+					.values(gScores)
+					.sort((a, b) =>
+					{
+						//	Descending bingoScore…
+						
+						if (b.bingoScore !== a.bingoScore)
+							return b.bingoScore - a.bingoScore;
+
+						//	Descending wordScore…
+						
+						if (b.wordScore !== a.wordScore)
+							return b.wordScore - a.wordScore;
+
+						//	Ascending name…
+						
+						return a.name.localeCompare(b.name);
+					})
+	
 	sorted.forEach((player) =>
 					{
 						const scoreCell = document.createElement("div")
 						scoreCell.insertAdjacentHTML("afterbegin", `<span>${player.name}</span>`);
-						scoreCell.insertAdjacentHTML("afterbegin", `<span>${player.wordScore} / ${player.bingoScore}</span>`);
+						scoreCell.insertAdjacentHTML("beforeend", `<div>${player.wordScore} / <span>${player.bingoScore}</span></div>`);
 						scores.appendChild(scoreCell)
 					})
 }
@@ -275,6 +308,7 @@ loadCurrentGame()
 	
 	const game = await api.getGame(gameID)
 	localStorage.setItem("currentGame", JSON.stringify(game))
+	updateScores(game.scores)
 	
 	const card = await api.getPlayerCard(gameID)
 	localStorage.setItem("playerCard", JSON.stringify(card))
@@ -344,18 +378,7 @@ openWebsocket(inCardID)
 			
 			//	Update scores…
 			
-			let players = event.players
-			if (players)
-			{
-				players.forEach((player) =>
-				{
-					console.log(`player ${player.playerID} ${player.name}: ${player.wordScore}/${player.bingoScore}`)
-					gScores[player.playerID] = player
-				})
-				
-				updateScoresUI()
-			}
-			
+			updateScores(event.scores)
 		})
 }
 
@@ -387,7 +410,7 @@ renderGamesList(games)
 		
 		const span = document.createElement("span")
 		span.className = "label"
-		span.textContent = game.name
+		span.textContent = game.displayName
 		summary.appendChild(span)
 		
 		const button = document.createElement("button")
