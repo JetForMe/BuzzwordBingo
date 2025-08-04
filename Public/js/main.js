@@ -1,5 +1,7 @@
 import api from "./api.js"
 
+let gScores = { }
+
 document.addEventListener("DOMContentLoaded", () =>
 {
 	(async () =>
@@ -201,6 +203,22 @@ updateUI()
 	}
 }
 
+function
+updateScoresUI()
+{
+	const scores = document.getElementById("scores")
+	scores.innerHTML = ""
+	
+	const sorted = Object.values(gScores).sort((a, b) => a.name.localeCompare(b.name));
+	sorted.forEach((player) =>
+					{
+						const scoreCell = document.createElement("div")
+						scoreCell.insertAdjacentHTML("afterbegin", `<span>${player.name}</span>`);
+						scoreCell.insertAdjacentHTML("afterbegin", `<span>${player.wordScore} / ${player.bingoScore}</span>`);
+						scores.appendChild(scoreCell)
+					})
+}
+
 /**
 	Shows the most appropriate view given the
 	current state. Generally call this after calling `updateUI`
@@ -317,15 +335,27 @@ openWebsocket(inCardID)
 			console.log("websocket message received: ", inEvent.data)
 			
 			let event = JSON.parse(inEvent.data)
-			if (event.cardID != inCardID)
+			if (event.cardID == inCardID)			//	TODO: Do we want everyone to get this event?
 			{
-				console.log(`Event for another card: ${event.cardID}; our card: ${inCardID}`)		//	TODO: Do we want everyone to get this event?
-				return
+				const cardsElem = document.getElementById("cards")
+				const cardCell = cardsElem.querySelector(`[data-sequence="${event.sequence}"]`)
+				cardCell.dataset.marked = event.marked
 			}
 			
-			const cardsElem = document.getElementById("cards")
-			const cardCell = cardsElem.querySelector(`[data-sequence="${event.sequence}"]`)
-			cardCell.dataset.marked = event.marked
+			//	Update scores…
+			
+			let players = event.players
+			if (players)
+			{
+				players.forEach((player) =>
+				{
+					console.log(`player ${player.playerID} ${player.name}: ${player.wordScore}/${player.bingoScore}`)
+					gScores[player.playerID] = player
+				})
+				
+				updateScoresUI()
+			}
+			
 		})
 }
 
