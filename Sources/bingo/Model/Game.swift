@@ -77,68 +77,6 @@ GameWord : Model, @unchecked Sendable
 	}
 }
 
-final
-class
-PlayerScore : Model, @unchecked Sendable
-{
-	static let schema = "PlayerScore"
-	
-	@ID(key: .id)					var id				:	UUID?
-	@Parent(key: .gameID)			var game			:	Game
-	@Parent(key: .playerID)			var player			:	Player
-	@Field(key: .score)				var score			:	Int
-	
-	init() {}
-	
-	init(id: UUID? = nil, game: Game, player: Player, score: Int)
-	{
-		self.id = id
-		self.$game.id = game.id!
-		self.$game.value = game
-		self.player = player
-		self.score = score
-	}
-}
-
-
-final
-class
-Bingo : Model, @unchecked Sendable
-{
-	enum
-	BingoType : String, Codable, CaseIterable
-	{
-		case row
-		case column
-		case ulbr					//	Diagonal from upper-left to bottom-right
-		case llur					//	Diagonal from lower-left to upper-right
-		case corners
-	}
-	
-	static let schema = "Bingo"
-	
-	@ID(key: .id)					var id				:	UUID?
-	@Parent(key: .cardID)			var card			:	Card
-	@Enum(key: .type)				var	type			:	BingoType
-	@Field(key: .index)				var index			:	Int
-	@Field(key: .timestamp)			var timestamp		:	Date
-	@Field(key: .verified)			var verified		:	Bool?
-	
-	init() {}
-	
-	init(id: UUID? = nil, card: Card, type: BingoType, index: Int, timestamp: Date, verified: Bool? = nil)
-	{
-		self.id = id
-		self.$card.id = card.id!
-		self.$card.value = card
-		self.type = type
-		self.index = index
-		self.timestamp = timestamp
-		self.verified = verified
-	}
-}
-
-
 
 
 extension

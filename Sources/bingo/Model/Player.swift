@@ -80,3 +80,60 @@ Player
 		return result
 	}
 }
+
+
+
+final
+class
+PlayerScore : Model, @unchecked Sendable
+{
+	static let schema = "PlayerScore"
+	
+	@ID(key: .id)					var id				:	UUID?
+	@Parent(key: .gameID)			var game			:	Game
+	@Parent(key: .playerID)			var player			:	Player
+	@Field(key: .wordScore)			var wordScore		:	Int
+	@Field(key: .bingoScore)		var bingoScore		:	Int
+	
+	init() {}
+	
+	init(id: UUID? = nil, game: Game, player: Player, wordScore: Int, bingoScore: Int)
+	{
+		self.id = id
+		self.$game.id = game.id!
+		self.$game.value = game
+		self.$player.id = player.id!
+		self.$player.value = player
+		self.wordScore = wordScore
+		self.bingoScore = bingoScore
+	}
+	
+	init(id: UUID? = nil, gameID: UUID, playerID: UUID, wordScore: Int, bingoScore: Int)
+	{
+		self.id = id
+		self.$game.id = gameID
+		self.$player.id = playerID
+		self.wordScore = wordScore
+		self.bingoScore = bingoScore
+	}
+}
+
+
+extension
+PlayerScore
+{
+	static
+	func
+	find(gameID inGameID: UUID, playerID inPlayerID: UUID, on inDB: any Database)
+		async
+		throws
+		-> PlayerScore?
+	{
+		let result = try await PlayerScore
+								.query(on: inDB)
+								.filter(\.$game.$id == inGameID)
+								.filter(\.$player.$id == inPlayerID)
+								.first()
+		return result
+	}
+}

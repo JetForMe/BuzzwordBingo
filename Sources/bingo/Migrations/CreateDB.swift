@@ -192,7 +192,8 @@ CreatePlayerScore : AsyncMigration
 						.id()
 						.field(.gameID, .uuid, .references(Game.schema, .id, onDelete: .cascade), .required)
 						.field(.playerID, .uuid, .references(Player.schema, .id, onDelete: .cascade), .required)
-						.field(.score, .int, .required)
+						.field(.wordScore, .int, .required)
+						.field(.bingoScore, .int, .required)
 						.unique(on: .gameID, .playerID)
 						.create()
 	}
@@ -224,6 +225,7 @@ CreateBingo : AsyncMigration
 						.field(.type, tType, .required)
 						.field(.index, .int)
 						.field(.timestamp, .datetime, .required)
+						.field(.verified, .bool)
 						.unique(on: .cardID, .type, .index)
 						.create()
 	}

@@ -62,13 +62,24 @@ CardsController : RouteCollection
 				//	Respond to game events…
 				
 				await inReq.bingo.onUpdate(gameID: card.$game.id, clientID: wsID)
-				{ inGameID, inCardID, inSequence, inMarked in
+				{ inGameID, inCardID, inSequence, inMarked, inPlayerScore in
 					Self.logger.info("Got game update for client \(wsID.uuidString)")
 					
-					let event = GameEvent(gameID: inGameID, cardID: inCardID, sequence: inSequence, marked: inMarked)
+					var players: [GamePlayer]?
+					if let player = try await Player.find(id: inPlayerScore.$player.id, on: inReq.db)
+					{
+						let gamePlayer = GamePlayer(playerID: inPlayerScore.$player.id, name: player.name, wordScore: inPlayerScore.wordScore, bingoScore: inPlayerScore.bingoScore)
+						players = [gamePlayer]
+					}
+					else
+					{
+						Self.logger.warning("Expected Player record for playerID \(inPlayerScore.$player.id.uuidString), but none was found")
+					}
+					
+					let event = GameEvent(gameID: inGameID, cardID: inCardID, sequence: inSequence, marked: inMarked, players: players)
 					let data = try JSONEncoder().encode(event)
 					let jsonString = String(data: data, encoding: .utf8)!
-					inWS.send(jsonString)
+					try await inWS.send(jsonString)
 				}
 			}
 			
@@ -256,4 +267,14 @@ GameEvent : Content
 	var	cardID				:	UUID
 	var	sequence			:	Int
 	var	marked				:	Bool
+	var players				:	[GamePlayer]?
+}
+
+struct
+GamePlayer : Content
+{
+	var	playerID			:	UUID
+	var	name				:	String
+	var	wordScore			:	Int
+	var	bingoScore			:	Int
 }

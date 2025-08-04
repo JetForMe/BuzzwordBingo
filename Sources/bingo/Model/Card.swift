@@ -23,6 +23,7 @@ Card : Model, @unchecked Sendable
 	@Parent(key: .gameID)			var game			:	Game
 	@Parent(key: .playerID)			var player			:	Player
 	@Children(for: \.$card)			var words			:	[CardWord]
+	@Children(for: \.$card)			var bingos			:	[Bingo]
 	
 	init() {}
 	
@@ -80,6 +81,7 @@ Card
 								.query(on: inDB)
 								.filter(\.$id == inID)
 								.with(\.$words) { $0.with(\.$word) }
+								.with(\.$bingos)
 								.first()
 		
 		return result
@@ -101,6 +103,7 @@ Card
 								.filter(\.$game.$id == inGameID)
 								.filter(\.$player.$id == inPlayerID)
 								.with(\.$words) { $0.with(\.$word) }
+								.with(\.$bingos)
 								.all()
 		
 		return result
@@ -130,6 +133,70 @@ CardWord
 								.with(\.$word)
 								.first()
 		
+		return result
+	}
+}
+
+
+
+final
+class
+Bingo : Model, @unchecked Sendable
+{
+	enum
+	BingoType : String, Codable, CaseIterable
+	{
+		case row
+		case column
+		case ulbr					//	Diagonal from upper-left to bottom-right
+		case llur					//	Diagonal from lower-left to upper-right
+		case corners
+	}
+	
+	static let schema = "Bingo"
+	
+	@ID(key: .id)					var id				:	UUID?
+	@Parent(key: .cardID)			var card			:	Card
+	@Enum(key: .type)				var	type			:	BingoType
+	@Field(key: .index)				var index			:	Int?
+	@Field(key: .timestamp)			var timestamp		:	Date
+	@Field(key: .verified)			var verified		:	Bool?
+	
+	init() {}
+	
+	init(id: UUID? = nil, card: Card, type: BingoType, index: Int? = nil, timestamp: Date, verified: Bool? = nil)
+	{
+		self.id = id
+		self.$card.id = card.id!
+		self.$card.value = card
+		self.type = type
+		self.index = index
+		self.timestamp = timestamp
+		self.verified = verified
+	}
+}
+
+
+extension
+Bingo
+{
+	static
+	func
+	find(cardID inCardID: UUID, type inType: BingoType, index inIdx: Int?, on inDB: any Database)
+		async
+		throws
+		-> Bingo?
+	{
+		var qb = Bingo
+					.query(on: inDB)
+					.filter(\.$card.$id == inCardID)
+					.filter(\.$type == inType)
+		if let idx = inIdx
+		{
+			qb = qb.filter(\.$index == idx)
+		}
+		
+		let result = try await qb.first()
 		return result
 	}
 }
