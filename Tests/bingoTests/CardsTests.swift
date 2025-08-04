@@ -22,7 +22,7 @@ CardsTests
 		async
 		throws
 	{
-		let playerID = kPlayerIDGregory
+		let playerID = kPlayerIDJulia
 		try await withApp(configure: configure)
 		{ inApp in
 			try await inApp.testing().test(.GET,
@@ -35,7 +35,7 @@ CardsTests
 											{ inResp async throws in
 												#expect(inResp.status == .ok)
 												let card = try inResp.content.decode(CardDTO.self)
-												#expect(card.gameID == UUID("6C737A65-5371-4762-94E7-AD59E400803E")!)
+												#expect(card.gameID == kGameIDShatner2025)
 												#expect(card.playerID == playerID)
 												#expect(card.words.count == 25)
 												

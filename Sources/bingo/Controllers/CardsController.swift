@@ -25,7 +25,7 @@ CardsController : RouteCollection
 		inRoutes.get(":id", "words", ":sequence", use: getCardWord)
 		inRoutes.put(":id", "words", ":sequence", use: updateCardWord)
 		
-		inRoutes.webSocket(":id")
+		inRoutes.webSocket(":id", "updates")
 		{ inReq, inWS in
 			do
 			{

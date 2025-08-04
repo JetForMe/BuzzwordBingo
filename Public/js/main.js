@@ -283,7 +283,7 @@ openWebsocket(inCardID)
 	//	Open the new one…
 	
 	const proto = location.protocol === "https:" ? "wss" : "ws"
-	gWebsocket = new WebSocket(`${proto}://${location.host}/api/cards/${inCardID}`)
+	gWebsocket = new WebSocket(`${proto}://${location.host}/api/cards/${inCardID}/updates`)
 	gWebsocket.addEventListener("open",
 		(inEvent) =>
 		{
