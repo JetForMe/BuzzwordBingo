@@ -4,8 +4,10 @@
 
 
 
-
 REMOTE_HOST = rmann@latencyzero.com
+REMOTE_HOST_PORT = 127.0.0.1:12001
+REMOTE_USER = 999:997
+REMOTE_CONTAINER = bingo
 IMAGE_NAME = bingo:latest
 
 
@@ -31,13 +33,19 @@ build-local:
 build-intel:
 	DOCKER_BUILDKIT=1 docker build --platform=linux/amd64 -t bingo .
 
-push:
+push: build-intel
 	docker save $(IMAGE_NAME) | gzip | ssh $(REMOTE_HOST) "gunzip | docker load"
 
-REMOTE_CONTAINER = bingo
 
 restart:
 	ssh $(REMOTE_HOST) "\
-		docker stop $(REMOTE_CONTAINER) || true && \
-		docker rm $(REMOTE_CONTAINER) || true && \
-		docker run -d --name $(REMOTE_CONTAINER) $(IMAGE_NAME)"
+		docker stop $(REMOTE_CONTAINER) || true &&		\
+		docker rm $(REMOTE_CONTAINER) || true &&		\
+		docker run -d									\
+			--name $(REMOTE_CONTAINER)					\
+			--user $(REMOTE_USER)						\
+			-p $(REMOTE_HOST_PORT):8080					\
+			-v /var/BingoData:/data						\
+			-e DATA_DIR=/data							\
+			-e LOG_LEVEL=debug							\
+			$(IMAGE_NAME)"
