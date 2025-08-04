@@ -93,21 +93,23 @@ configureDatabase(_ inApp: Application)
 	//	Note: These need to be done in this order,
 
 	inApp.migrations.add(CreateEnums())
+	
+	inApp.migrations.add(CreatePlayer())
+	
 	inApp.migrations.add(CreateGame())
 	inApp.migrations.add(CreateGameWord())
-	inApp.migrations.add(CreatePlayer())
 	inApp.migrations.add(CreatePlayerScore())
-	inApp.migrations.add(CreateBingo())
+	
 	inApp.migrations.add(CreateCard())
 	inApp.migrations.add(CreateCardWord())
 
-//	inApp.migrations.add(UpdateUserV2())
+	inApp.migrations.add(CreateBingo())
 	
 	if inApp.environment == .development
 		|| inApp.environment == .testing
 	{
-		inApp.migrations.add(SeedGames())
 		inApp.migrations.add(SeedPlayers())
+		inApp.migrations.add(SeedGames())
 		inApp.migrations.add(SeedCards())
 	}
 	

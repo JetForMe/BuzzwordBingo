@@ -14,6 +14,33 @@ import Fluent
 
 
 
+struct
+CreateEnums: AsyncMigration
+{
+	func
+	prepare(on inDB: any Database)
+		async
+		throws
+	{
+		//	BingoType enum…
+
+		var stateEB = inDB.enum(String(describing: Bingo.BingoType.self))
+		for c in Bingo.BingoType.allCases
+		{
+			stateEB = stateEB.case(c.rawValue)
+		}
+		let _ = try await stateEB.create()
+	}
+
+	func
+	revert(on inDB: any Database)
+		async
+		throws
+	{
+		try await inDB.enum(String(describing: Bingo.BingoType.self)).delete()
+	}
+}
+
 
 
 
@@ -28,6 +55,7 @@ CreateGame: AsyncMigration
 	{
 		try await inDB.schema(Game.schema)
 						.id()
+						.field(.ownerID, .uuid, .references(Player.schema, .id, onDelete: .cascade), .required)
 						.field(.name, .string, .required)
 						.field(.displayName, .string, .required)
 						.field(.created, .date, .required)

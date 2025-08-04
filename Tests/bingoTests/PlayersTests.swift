@@ -26,7 +26,7 @@ PlayersTests
 											{ inResp async throws in
 												#expect(inResp.status == .ok)
 												let returnedPlayer = try inResp.content.decode(PlayerDTO.self)
-												#expect(returnedPlayer.id == UUID("035681DF-03EB-44F0-B7D1-4552BD6678AC")!)
+												#expect(returnedPlayer.id == kPlayerIDGregory)
 												#expect(returnedPlayer.name == "Gregöry")
 											})
 			try await inApp.testing().test(.GET,
@@ -35,7 +35,7 @@ PlayersTests
 											{ inResp async throws in
 												#expect(inResp.status == .ok)
 												let returnedPlayer = try inResp.content.decode(PlayerDTO.self)
-												#expect(returnedPlayer.id == UUID("035681DF-03EB-44F0-B7D1-4552BD6678AC")!)
+												#expect(returnedPlayer.id == kPlayerIDGregory)
 												#expect(returnedPlayer.name == "Gregöry")
 											})
 		}
@@ -53,8 +53,8 @@ PlayersTests
 			try await inApp.testing().test(.PUT,
 											"/api/players/\(player.name)",
 											beforeRequest:
-											{ inReq in
-												try inReq.content.encode(player)
+											{ ioReq in
+												try ioReq.content.encode(player)
 											},
 											afterResponse:
 											{ inResp async throws in
@@ -66,8 +66,8 @@ PlayersTests
 			try await inApp.testing().test(.PUT,
 											"/api/players/\(player.name)",
 											beforeRequest:
-											{ inReq in
-												try inReq.content.encode(player)
+											{ ioReq in
+												try ioReq.content.encode(player)
 											},
 											afterResponse:
 											{ inResp async throws in
@@ -105,8 +105,8 @@ PlayersTests
 			try await inApp.testing().test(.PUT,
 											"/api/players/\(player.name)",
 											beforeRequest:
-											{ inReq in
-												try inReq.content.encode(player)
+											{ ioReq in
+												try ioReq.content.encode(player)
 											},
 											afterResponse:
 											{ inResp async throws in
@@ -114,6 +114,42 @@ PlayersTests
 												let createdPlayer = try inResp.content.decode(PlayerDTO.self)
 												#expect(createdPlayer.id == id)
 												#expect(createdPlayer.name == player.name)
+											})
+		}
+	}
+
+
+	
+	@Test("Test GET players/me")
+	func
+	getGameShatner2025()
+		async
+		throws
+	{
+		let playerID = kPlayerIDGregory
+		try await withApp(configure: configure)
+		{ inApp in
+			try await inApp.testing().test(.GET,
+											"/api/players/me",
+											beforeRequest:
+											{ ioReq in
+												ioReq.headers.add(name: "Player-ID", value: playerID.uuidString)
+											},
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .ok)
+												let player = try inResp.content.decode(PlayerDTO.self)
+												#expect(player.games?.count == 2)
+											})
+			try await inApp.testing().test(.GET,
+											"/api/players/me",
+											beforeRequest:
+											{ ioReq in
+												ioReq.headers.add(name: "Player-ID", value: UUID().uuidString)
+											},
+											afterResponse:
+											{ inResp async throws in
+												#expect(inResp.status == .badRequest)
 											})
 		}
 	}

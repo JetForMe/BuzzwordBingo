@@ -21,8 +21,26 @@ PlayersController : RouteCollection
     boot(routes inRoutes: any RoutesBuilder)
     	throws
 	{
+		inRoutes.get("me", use: getCurrentPlayer)
 		inRoutes.get(":nameOrID", use: getPlayer)
 		inRoutes.put(":nameOrID", use: loginPlayer)
+	}
+	
+	func
+	getCurrentPlayer(_ inReq: Request)
+		async
+		throws
+		-> PlayerDTO
+	{
+		return try await inReq.db.transaction
+		{ inTxn in
+			let player = try inReq.requirePlayer()
+			
+			let games = try await Game.find(forPlayerID: player.requireID(), on: inTxn)
+			let gamesDTO = try games.map { try GameDTO(game: $0) }
+			let playerDTO = try PlayerDTO(id: player.requireID(), name: player.name, games: gamesDTO)
+			return playerDTO
+		}
 	}
 	
 	func
@@ -113,4 +131,5 @@ PlayerDTO : Content
 {
 	var	id			:	UUID?
 	var	name		:	String
+	var	games		:	[GameDTO]?
 }

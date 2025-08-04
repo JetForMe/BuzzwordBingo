@@ -25,18 +25,58 @@ let kWordIDHorses						=	UUID("2D2E8DEF-CE96-4B39-918E-87B9689AC76E")!
 let kWordIDWhat							=	UUID("08B751C5-2861-4E50-BB9C-7FA94614D24F")!
 
 
+
+struct
+SeedPlayers : AsyncMigration
+{
+	/**
+		(ID, name)
+	*/
+	
+	let
+	defaults: [(UUID, String)] =
+	[
+		(kPlayerIDGregory, "Gregöry"),
+	]
+	
+	func
+	prepare(on inDB: any Database)
+		async
+		throws
+	{
+		for (inID, inName) in self.defaults
+		{
+			let r = Player(id: inID, name: inName)
+			try await r.save(on: inDB)
+		}
+	}
+
+	func
+	revert(on inDB: any Database)
+		async
+		throws
+	{
+		for (inID, _) in self.defaults
+		{
+			try await Player.query(on: inDB).filter(\.$id == inID).delete()
+		}
+	}
+}
+
+
+
 struct
 SeedGames : AsyncMigration
 {
 	/**
-		Games (ID, name, Created)
+		Games (ID, ownerID name, Created)
 	*/
 	
 	let
-	games: [(UUID, String, Date)] =
+	games: [(UUID, UUID, String, Date)] =
 	[
-		(kGameIDShatner2025, "Shatner 2025", Date()),
-		(kGameIDShatner2024, "Shatner 2024", Date(timeIntervalSinceNow: -3600.0 * 24 * 365)),
+		(kGameIDShatner2025, kPlayerIDGregory, "Shatner 2025", Date()),
+		(kGameIDShatner2024, kPlayerIDGregory, "Shatner 2024", Date(timeIntervalSinceNow: -3600.0 * 24 * 365)),
 	]
 	
 	/**
@@ -83,9 +123,9 @@ SeedGames : AsyncMigration
 	{
 		//	Seed the games…
 		
-		for (inID, inName, inCreated) in self.games
+		for (inID, inOwnerID, inName, inCreated) in self.games
 		{
-			let r = Game(id: inID, displayName: inName, created: inCreated)
+			let r = Game(id: inID, ownerID: inOwnerID, displayName: inName, created: inCreated)
 			try await r.save(on: inDB)
 		}
 		
@@ -106,7 +146,7 @@ SeedGames : AsyncMigration
 	{
 		//	Deleting games should delete any words associated…
 		
-		for (inID, _, _) in self.games
+		for (inID, _, _, _) in self.games
 		{
 			try await Game.query(on: inDB).filter(\.$id == inID).delete()
 		}
@@ -114,43 +154,6 @@ SeedGames : AsyncMigration
 }
 
 
-
-struct
-SeedPlayers : AsyncMigration
-{
-	/**
-		(ID, name)
-	*/
-	
-	let
-	defaults: [(UUID, String)] =
-	[
-		(kPlayerIDGregory, "Gregöry"),
-	]
-	
-	func
-	prepare(on inDB: any Database)
-		async
-		throws
-	{
-		for (inID, inName) in self.defaults
-		{
-			let r = Player(id: inID, name: inName)
-			try await r.save(on: inDB)
-		}
-	}
-
-	func
-	revert(on inDB: any Database)
-		async
-		throws
-	{
-		for (inID, _) in self.defaults
-		{
-			try await Player.query(on: inDB).filter(\.$id == inID).delete()
-		}
-	}
-}
 
 struct
 SeedCards : AsyncMigration

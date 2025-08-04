@@ -18,6 +18,7 @@ FieldKey
 	static var	index							:	Self { "index" }
 	static var	marked							:	Self { "marked" }
 	static var	name							:	Self { "name" }
+	static var	ownerID							:	Self { "ownerID" }
 	static var	playerID						:	Self { "playerID" }
 	static var	score							:	Self { "score" }
 	static var	sequence						:	Self { "sequence" }

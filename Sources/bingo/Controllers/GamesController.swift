@@ -33,13 +33,7 @@ GamesController : RouteCollection
 		-> [GameDTO]
 	{
 		let dbGames = try await Game.getAll(on: inReq.db)
-		let games = try dbGames
-						.map
-						{ inGame in
-							let words = try inGame.words.map { try GameWordDTO(id: $0.requireID(), word: $0.word) }
-							let game = try GameDTO(id: inGame.requireID(), name: inGame.name, displayName: inGame.displayName, words: words)
-							return game
-						}
+		let games = try dbGames.map { try GameDTO(game: $0) }
 		return games
 	}
 	
@@ -149,6 +143,21 @@ GameDTO : Content
 	var	name		:	String
 	var	displayName	:	String
 	var	words		:	[GameWordDTO]
+	
+	init(id: UUID, name: String, displayName: String, words: [GameWordDTO])
+	{
+		self.id = id
+		self.name = name
+		self.displayName = displayName
+		self.words = words
+	}
+	
+	init(game inGame: Game)
+		throws
+	{
+		let words = try inGame.words.map { try GameWordDTO(id: $0.requireID(), word: $0.word) }
+		self.init(id: try inGame.requireID(), name: inGame.name, displayName: inGame.displayName, words: words)
+	}
 }
 
 struct

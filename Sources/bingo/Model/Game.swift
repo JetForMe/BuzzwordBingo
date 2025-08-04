@@ -12,33 +12,6 @@ import Fluent
 
 
 
-struct
-CreateEnums: AsyncMigration
-{
-	func
-	prepare(on inDB: any Database)
-		async
-		throws
-	{
-		//	BingoType enum…
-
-		var stateEB = inDB.enum(String(describing: Bingo.BingoType.self))
-		for c in Bingo.BingoType.allCases
-		{
-			stateEB = stateEB.case(c.rawValue)
-		}
-		let _ = try await stateEB.create()
-	}
-
-	func
-	revert(on inDB: any Database)
-		async
-		throws
-	{
-		try await inDB.enum(String(describing: Bingo.BingoType.self)).delete()
-	}
-}
-
 
 
 final
@@ -48,6 +21,7 @@ Game : Model, @unchecked Sendable
 	static let schema = "Game"
 	
 	@ID(key: .id)					var id				:	UUID?
+	@Parent(key: .ownerID)			var owner			:	Player
 	@Field(key: .name)				var name			:	String
 	@Field(key: .displayName)		var displayName		:	String
 	@Field(key: .created)			var created			:	Date
@@ -55,12 +29,26 @@ Game : Model, @unchecked Sendable
 	
 	init() {}
 	
-	init(
-		id: UUID? = nil,
-		displayName: String,
-		created: Date = Date())
+	init(id: UUID? = nil,
+			ownerID: UUID,
+			displayName: String,
+			created: Date = Date())
 	{
 		self.id = id
+		self.$owner.id = ownerID
+		self.displayName = displayName
+		self.name = displayName.toUsername()
+		self.created = created
+	}
+	
+	init(id: UUID? = nil,
+			owner: Player,
+			displayName: String,
+			created: Date = Date())
+	{
+		self.id = id
+		self.$owner.id = owner.id!
+		self.$owner.value = owner
 		self.displayName = displayName
 		self.name = displayName.toUsername()
 		self.created = created
@@ -105,7 +93,8 @@ PlayerScore : Model, @unchecked Sendable
 	init(id: UUID? = nil, game: Game, player: Player, score: Int)
 	{
 		self.id = id
-		self.game = game
+		self.$game.id = game.id!
+		self.$game.value = game
 		self.player = player
 		self.score = score
 	}
@@ -135,8 +124,18 @@ Bingo : Model, @unchecked Sendable
 	@Field(key: .timestamp)			var timestamp		:	Date
 	@Field(key: .verified)			var verified		:	Bool?
 	
-//	init() {}
+	init() {}
 	
+	init(id: UUID? = nil, card: Card, type: BingoType, index: Int, timestamp: Date, verified: Bool? = nil)
+	{
+		self.id = id
+		self.$card.id = card.id!
+		self.$card.value = card
+		self.type = type
+		self.index = index
+		self.timestamp = timestamp
+		self.verified = verified
+	}
 }
 
 
@@ -205,5 +204,20 @@ Game
 		{
 			return try await Game.find(displayName: inNameOrID, on: inDB)
 		}
+	}
+	
+	static
+	func
+	find(forPlayerID: UUID, on inDB: any Database)
+		async
+		throws
+		-> [Game]
+	{
+		let result = try await Game
+								.query(on: inDB)
+								.filter(\.$owner.$id == forPlayerID)
+								.with(\.$words)
+								.all()
+		return result
 	}
 }
