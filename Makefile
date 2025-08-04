@@ -33,7 +33,7 @@ build-local:
 build-intel:
 	DOCKER_BUILDKIT=1 docker build --platform=linux/amd64 -t bingo .
 
-push: build-intel
+push:
 	docker save $(IMAGE_NAME) | gzip | ssh $(REMOTE_HOST) "gunzip | docker load"
 
 
@@ -47,5 +47,18 @@ restart:
 			-p $(REMOTE_HOST_PORT):8080					\
 			-v /var/BingoData:/data						\
 			-e DATA_DIR=/data							\
-			-e LOG_LEVEL=debug							\
+			-e LOG_LEVEL=info							\
 			$(IMAGE_NAME)"
+
+migrate:
+	ssh $(REMOTE_HOST) "\
+		docker stop $(REMOTE_CONTAINER) || true &&		\
+		docker rm $(REMOTE_CONTAINER) || true &&		\
+		docker run -d									\
+			--name $(REMOTE_CONTAINER)					\
+			--user $(REMOTE_USER)						\
+			-p $(REMOTE_HOST_PORT):8080					\
+			-v /var/BingoData:/data						\
+			-e DATA_DIR=/data							\
+			-e LOG_LEVEL=info							\
+			$(IMAGE_NAME) ./bingo migrate"
