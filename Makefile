@@ -52,13 +52,9 @@ restart:
 
 migrate:
 	ssh $(REMOTE_HOST) "\
-		docker stop $(REMOTE_CONTAINER) || true &&		\
-		docker rm $(REMOTE_CONTAINER) || true &&		\
-		docker run -d									\
-			--name $(REMOTE_CONTAINER)					\
+		docker inspect -f '{{.State.Running}}' $(REMOTE_CONTAINER) 2>/dev/null | grep true >/dev/null && \
+		docker exec										\
 			--user $(REMOTE_USER)						\
-			-p $(REMOTE_HOST_PORT):8080					\
-			-v /var/BingoData:/data						\
 			-e DATA_DIR=/data							\
 			-e LOG_LEVEL=info							\
-			$(IMAGE_NAME) ./bingo migrate"
+			$(REMOTE_CONTAINER) ./bingo migrate"

@@ -35,6 +35,10 @@ Card : Model, @unchecked Sendable
 		self.$player.id = player.id!
 		self.$player.value = player
 	}
+
+
+	let kWidth = 5
+	let kHeight = 5
 }
 
 
