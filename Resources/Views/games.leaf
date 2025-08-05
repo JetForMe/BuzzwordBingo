@@ -1,0 +1,16 @@
+#extend("layout"):
+	#export("main"):
+		<section id="games-view" class="view">
+			<h1 class="centered">Game List</h1>
+			<div id="games-list">
+				<details name="game">
+					<summary>
+						<span class="label">Shatner 2025</span>
+						<button class="join-btn">Join</button>
+					</summary>
+					<p class="wordList">Album, Aliens, Antarctica, Blue Origin, Consciousness, Conventions, Ego, Energy, Horses, Humanity, Intimidation, Leonard, Life and Death, Mispronounces Common Word, Mortality, Motorcycles, Nashville, Poetry, Reality, Set, Sharks, Talks over Audience, The Universe, Time, Trees, Twilight Zone, What?, “Just Realized”</p>
+				</details>
+			</div>
+		</section>
+	#endexport
+#endextend

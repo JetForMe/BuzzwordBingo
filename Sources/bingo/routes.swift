@@ -2,7 +2,7 @@ import Vapor
 
 
 import Fluent
-
+import Leaf
 
 
 
@@ -30,6 +30,23 @@ routes(_ inApp: Application)
 		{ inGroup in
 			try! inGroup.register(collection: PlayersController())
 		}
+	}
+	
+//	inApp.get
+//	{ inReq in
+//		sLogger.info("public dir: \(publicDir)")
+//		let indexPath = publicDir / "index.html"
+//		return try await inReq.fileio.asyncStreamFile(at: indexPath.string)
+//	}
+	inApp.get
+	{ inReq async throws -> View in
+		return try await inReq.view.render("index")
+	}
+	
+	inApp.get("games.html")
+	{ inReq async throws -> View in
+		let games = try await GamesController().getGames(inReq)
+		return try await inReq.view.render("games", [ "games" : games ])
 	}
 }
 

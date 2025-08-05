@@ -1,5 +1,6 @@
 import Fluent
 import FluentSQLiteDriver
+import Leaf
 import Logging
 import Vapor
 
@@ -27,19 +28,12 @@ configure(_ inApp: Application)
 	
 	//	Register static file middleware…
 	
-	
 	let configuredPublicDir = Environment.get("PUBLIC_DIR")
 	sLogger.info("PUBLIC_DIR:             \(String(describing: configuredPublicDir))")
 	let publicDir = Path(configuredPublicDir ?? (Path.cwd / "Public").string)!
 	sLogger.info("Resolved PUBLIC_DIR:    \(publicDir)")
 	
 	inApp.middleware.use(FileMiddleware(publicDirectory: publicDir.string))
-	inApp.get
-	{ inReq in
-		sLogger.info("public dir: \(publicDir)")
-		let indexPath = publicDir / "index.html"
-		return try await inReq.fileio.asyncStreamFile(at: indexPath.string)
-	}
 	
 	//	Configure how we encode dates…
 	
@@ -50,6 +44,10 @@ configure(_ inApp: Application)
 	let decoder = JSONDecoder()
 	decoder.dateDecodingStrategy = .deferredToDate
 	ContentConfiguration.global.use(decoder: decoder, for: .json)
+	
+	//	Configure Leaf…
+	
+	inApp.views.use(.leaf)
 	
 	//	Set up DB…
 	
@@ -83,9 +81,8 @@ configureDatabase(_ inApp: Application)
 		sLogger.info("Resolved DATA_DIR:      \(dataDir)")
 		let dbPath = Path(Environment.get("SQLITE_DB_PATH") ?? (dataDir/"db.sqlite").string)!
 		sLogger.info("DB path:                \(dbPath)")
+		
 		inApp.databases.use(.sqlite(.file(dbPath.string), sqlLogLevel: .debug), as: .sqlite)
-		//	TODO: For testing deadlock issues:
-//		inApp.databases.use(.postgres(hostname: "localhost", username: "vapor_username", password: "vapor_password", database: "vapor_database"), as: .psql)
 	}
 	
 	//	MARK: Migrations

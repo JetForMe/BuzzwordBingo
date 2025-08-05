@@ -116,6 +116,17 @@ PlayersController : RouteCollection
 			playerDTO.id = existingPlayer!.id
 			playerDTO.name = existingPlayer!.name
 			
+			//	Set the PlayerID cookie:
+			
+			resp.cookies["playerID"] = HTTPCookies
+										.Value(string: existingPlayer!.id!.uuidString,
+												expires: Date().addingTimeInterval(60 * 60 * 24 * 30),		// 30 days
+												path: "/",
+												isHTTPOnly: false,											// allow JavaScript access if needed
+												sameSite: .lax)												// or .none for cross-site
+			
+			//	Encode the player DTO…
+			
 			try resp.content.encode(playerDTO)
 			return resp
 		}
