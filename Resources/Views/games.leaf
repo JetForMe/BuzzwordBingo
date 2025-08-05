@@ -1,16 +1,18 @@
 #extend("layout"):
 	#export("main"):
-		<section id="games-view" class="view">
+		<section id="" class="view active">
 			<h1 class="centered">Game List</h1>
 			<div id="games-list">
+#for(game in games.otherGames):
 				<details name="game">
 					<summary>
-						<span class="label">Shatner 2025</span>
+						<span class="label">#(game.displayName)</span>
 						<button class="join-btn">Join</button>
 					</summary>
-					<p class="wordList">Album, Aliens, Antarctica, Blue Origin, Consciousness, Conventions, Ego, Energy, Horses, Humanity, Intimidation, Leonard, Life and Death, Mispronounces Common Word, Mortality, Motorcycles, Nashville, Poetry, Reality, Set, Sharks, Talks over Audience, The Universe, Time, Trees, Twilight Zone, What?, “Just Realized”</p>
+					<p class="wordList">#join(game.words, ", ", "word")</p>
 				</details>
 			</div>
+#endfor
 		</section>
 	#endexport
 #endextend

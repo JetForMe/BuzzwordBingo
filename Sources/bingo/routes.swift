@@ -43,7 +43,7 @@ routes(_ inApp: Application)
 		return try await inReq.view.render("index")
 	}
 	
-	inApp.get("games.html")
+	inApp.get("games")
 	{ inReq async throws -> View in
 		let games = try await GamesController().getGames(inReq)
 		return try await inReq.view.render("games", [ "games" : games ])

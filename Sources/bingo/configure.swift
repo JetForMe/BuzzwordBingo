@@ -48,6 +48,8 @@ configure(_ inApp: Application)
 	//	Configure Leaf…
 	
 	inApp.views.use(.leaf)
+	inApp.leaf.tags["join"] = JoinTag()
+	inApp.leaf.tags["map"] = MapTag()
 	
 	//	Set up DB…
 	

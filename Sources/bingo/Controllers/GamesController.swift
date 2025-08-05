@@ -30,10 +30,15 @@ GamesController : RouteCollection
 	getGames(_ inReq: Request)
 		async
 		throws
-		-> [GameDTO]
+		-> GamesDTO
 	{
-		let dbGames = try await Game.getAll(on: inReq.db)
-		let games = try dbGames.map { try GameDTO(game: $0) }
+		let ownedGames = try await Game.getAll(owner: inReq.player, on: inReq.db)
+		let playedGames = try await Game.getAll(player: inReq.player, on: inReq.db)
+//		let otherGames = try await Game.getAll(excludingPlayer: inReq.player, on: inReq.db)
+		let otherGames = try await Game.getAll(on: inReq.db)
+		let games = GamesDTO(ownedGames: try ownedGames.map { try GameDTO(game: $0) },
+								playedGames: try playedGames.map { try GameDTO(game: $0) },
+								otherGames: try otherGames.map { try GameDTO(game: $0) })
 		return games
 	}
 	
@@ -133,7 +138,13 @@ GamesController : RouteCollection
 }
 
 
-
+struct
+GamesDTO : Content
+{
+	var	ownedGames		:	[GameDTO]
+	var	playedGames		:	[GameDTO]
+	var	otherGames		:	[GameDTO]
+}
 
 struct
 GameDTO : Content

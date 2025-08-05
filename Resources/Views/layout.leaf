@@ -8,34 +8,20 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
 	<link rel="manifest" href="/assets/site.webmanifest">
-	<link rel="stylesheet" href="css/pico.slate.min.css">
-	<link rel="stylesheet" href="css/main.css">
-	<script src="js/main.js" type="module"></script>
+	<link rel="stylesheet" href="/css/pico.slate.min.css">
+	<link rel="stylesheet" href="/css/main.css">
+	<script src="/js/main.js" type="module"></script>
 </head>
 <body>
 <div class="container">
 	<header>
-		<nav>
-			<ul>
-				<li><strong>Bingo</strong></li>
-			</ul>
-			<ul>
-				<li><span id="player-name"></span></li>
-				<li><a id="auth-link" href="#">Login</a></li>
-				<li><a id="games-link" href="#">Games</a></li>
-				<li><a id="card-link" href="#">Card</a></li>
-			</ul>
-		</nav>
+		#extend("header")
 	</header>
 	<main>
 		#import("main")
 	</main>
 	<footer>
-		<nav>
-			<ul>
-				<li style="font-size: 0.75rem;">made with <span style="font-size: 75%; vertical-align: 0.1em">💚</span> by rick</li>
-			</ul>
-		</nav>
+		#extend("footer")
 	</footer>
 </div>
 </body>

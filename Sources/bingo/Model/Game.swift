@@ -83,6 +83,10 @@ GameWord : Model, @unchecked Sendable
 extension
 Game
 {
+	/**
+		Returns all games.
+	*/
+	
 	static
 	func
 	getAll(on inDB: any Database)
@@ -90,10 +94,97 @@ Game
 		throws
 		-> [Game]
 	{
+		let result = try await  Game
+							.query(on: inDB)
+							.with(\.$words)
+							.all()
+		return result
+	}
+	
+	/**
+		Returns all games owned by ``owner``. If ``owner`` is nil,
+		return an empty array.
+	*/
+	
+	static
+	func
+	getAll(owner inPlayer: Player? = nil, on inDB: any Database)
+		async
+		throws
+		-> [Game]
+	{
+		guard
+			let player = inPlayer
+		else
+		{
+			return []
+		}
+		
+		let result = try await  Game
+							.query(on: inDB)
+							.filter(\.$owner.$id == player.requireID())
+							.with(\.$words)
+							.all()
+		return result
+	}
+	
+	/**
+		Returns all games played by ``player``. If ``player`` is nil,
+		return an empty array.
+	*/
+	
+	static
+	func
+	getAll(player inPlayer: Player? = nil, on inDB: any Database)
+		async
+		throws
+		-> [Game]
+	{
+		guard
+			let player = inPlayer
+		else
+		{
+			return []
+		}
+		
 		let result = try await Game
 								.query(on: inDB)
+								.join(Card.self, on: \Card.$game.$id == \Game.$id)
+								.filter(Card.self, \.$player.$id == player.requireID())
+								.unique()
 								.with(\.$words)
 								.all()
+		return result
+	}
+	
+	/**
+		Returns all games except those owned or played by ``excludingPlayer``. If ``excludingPlayer`` is nil,
+		return all games
+	*/
+	
+	static
+	func
+	getAll(excludingPlayer inPlayer: Player?, on inDB: any Database)
+		async
+		throws
+		-> [Game]
+	{
+		var qb = Game
+					.query(on: inDB)
+					.with(\.$words)
+		if let player = inPlayer
+		{
+			qb = try qb.filter(\.$owner.$id != player.requireID())								// not owned by player
+						.join(Card.self, on: \Game.$id == \Card.$game.$id, method: .left)
+						.group(.or)
+						{
+							try $0.filter(Card.self, \.$player.$id != player.requireID())
+//									.filter(\Card.$id, .equal, Card.IDValue?.none)
+//								   .filter(Card.self, \.$id, .equal, nil)						// no card at all = safe to include
+						}
+						.unique()
+		}
+		let result = try await qb.all()
 		return result
 	}
 	

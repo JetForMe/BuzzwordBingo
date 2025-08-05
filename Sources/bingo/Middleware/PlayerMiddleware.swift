@@ -32,6 +32,9 @@ PlayerMiddleware : AsyncMiddleware
 	}
 }
 
+//if let raw = req.cookies["playerID"]?.string, let id = UUID(uuidString: raw) {
+//	// Use `id` as the player's ID
+//}
 
 
 private

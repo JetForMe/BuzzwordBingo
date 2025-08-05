@@ -14,14 +14,14 @@ document.addEventListener("DOMContentLoaded", () =>
 		await updateUI()
 		await showDefaultView()
 		
-		//	The Games button…
-		
-		const gamesLink = document.getElementById("games-link")
-		gamesLink.onclick = (e) =>
-		{
-			e.preventDefault()
-			showView("games-view")
-		}
+//		//	The Games button…
+//		
+//		const gamesLink = document.getElementById("games-link")
+//		gamesLink.onclick = (e) =>
+//		{
+//			e.preventDefault()
+//			showView("games-view")
+//		}
 		
 		//	The login submit button…
 		
