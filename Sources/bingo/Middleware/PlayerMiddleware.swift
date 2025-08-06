@@ -17,8 +17,22 @@ PlayerMiddleware : AsyncMiddleware
 		throws
 		-> Response
 	{
+		//	Find the playerID either in the header or as a cookie…
+		
+		var playerID: String? = nil
+		if let id = inReq.cookies["playerID"]?.string
+		{
+			playerID = id
+		}
+		else if let id = inReq.headers.first(name: "Player-ID")
+		{
+			playerID = id
+		}
+		
+		//	Load the player…
+		
 		guard
-			let playerID = inReq.headers.first(name: "Player-ID"),
+			let playerID,
 			let uuid = UUID(uuidString: playerID)
 		else
 		{
@@ -31,10 +45,6 @@ PlayerMiddleware : AsyncMiddleware
 		return try await inNext.respond(to: inReq)
 	}
 }
-
-//if let raw = req.cookies["playerID"]?.string, let id = UUID(uuidString: raw) {
-//	// Use `id` as the player's ID
-//}
 
 
 private

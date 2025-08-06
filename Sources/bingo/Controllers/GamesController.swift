@@ -50,18 +50,15 @@ GamesController : RouteCollection
 	{
 		let nameOrID = inReq.parameters.get("nameOrID")!
 		
-		return try await inReq.db.transaction
-		{ inTxn in
-			guard
-				let game  = try await Game.find(nameOrID: nameOrID, on: inTxn)
-			else
-			{
-				throw ApplicationError.notFound("Game \(nameOrID) not found")
-			}
-			
-			let dto = try GameDTO(game: game)
-			return dto
+		guard
+			let game  = try await Game.find(nameOrID: nameOrID, on: inReq.db)
+		else
+		{
+			throw ApplicationError.notFound("Game \(nameOrID) not found")
 		}
+		
+		let dto = try GameDTO(game: game)
+		return dto
 	}
 	
 	/**

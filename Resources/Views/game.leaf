@@ -1,0 +1,27 @@
+#extend("layout"):
+	#export("script"):
+		<script>
+			document.addEventListener("DOMContentLoaded", () =>
+			{
+				openWebsocket("#(currentCard.id)")
+				addCardWordTapHandlers("#(currentCard.id)")
+			})
+		</script>
+	#endexport
+	#export("main"):
+		<section class="view active">
+			<h1 class="centered">#(currentGame.displayName)</h1>
+			<div id="scores">
+			</div>
+			<div id="cards">
+				<div class="bingo-card">
+				#for(word in currentCard.words):
+					<div data-sequence="#(word.sequence)" data-marked="#(word.marked)">
+						<div>#(word.word)</div>
+					</div>
+				#endfor
+				</div>
+			</div>
+		</section>
+	#endexport
+#endextend

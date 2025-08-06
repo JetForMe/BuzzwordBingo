@@ -7,12 +7,12 @@
 				<details name="game">
 					<summary>
 						<span class="label">#(game.displayName)</span>
-						<button class="join-btn">Join</button>
+						<a href="/games/#(game.name)"><button class="join-btn">Play</button></a>
 					</summary>
 					<p class="wordList">#join(game.words, ", ", "word")</p>
 				</details>
-			</div>
 #endfor
+			</div>
 		</section>
 	#endexport
 #endextend

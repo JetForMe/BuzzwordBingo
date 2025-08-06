@@ -2,47 +2,48 @@ import api from "./api.js"
 
 let gScores = { }
 
-document.addEventListener("DOMContentLoaded", () =>
+
+async function documentLoaded()
 {
-	(async () =>
-	{
 		const playerID = localStorage.getItem("playerID")
 		api.setPlayerID(playerID)
 		
-		loadCurrentGame()
-		
-		await updateUI()
-		await showDefaultView()
-		
-//		//	The Games button…
+		const form = document.getElementById("login-form")
+		if (form)
+		{
+			form.addEventListener("submit",
+									(inEvent) =>
+									{
+										inEvent.preventDefault()
+										login()
+									})
+		}
+//
+//		loadCurrentGame()
 //		
-//		const gamesLink = document.getElementById("games-link")
-//		gamesLink.onclick = (e) =>
+//		await updateUI()
+//		await showDefaultView()
+//		
+////		//	The Games button…
+////		
+////		const gamesLink = document.getElementById("games-link")
+////		gamesLink.onclick = (e) =>
+////		{
+////			e.preventDefault()
+////			showView("games-view")
+////		}
+//		
+//		//	Temp card button…
+//		
+//		const cardLink = document.getElementById("card-link")
+//		cardLink.onclick = (e) =>
 //		{
 //			e.preventDefault()
-//			showView("games-view")
+//			showView("card-view")
 //		}
 		
-		//	The login submit button…
-		
-		const loginSubmit = document.getElementById("login-submit")
-		loginSubmit.onclick = (e) =>
-		{
-			e.preventDefault()
-			login()
-		}
-		
-		//	Temp card button…
-		
-		const cardLink = document.getElementById("card-link")
-		cardLink.onclick = (e) =>
-		{
-			e.preventDefault()
-			showView("card-view")
-		}
-		
-	})()
-})
+}
+
 
 async function showView(viewId)
 {
@@ -108,9 +109,15 @@ async function updateView(inViewID)
 		catch (err)
 		{
 			console.error("get games failed:", err)
-			alert("get games failed. Please try again.")
 		}
 	}
+}
+
+function
+loginSubmit(inEvent)
+{
+	inEvent.preventDefault()
+	login()
 }
 
 async function login()
@@ -148,59 +155,19 @@ async function login()
 	}
 }
 
+function
+logout()
+{
+	localStorage.clear()
+	document.cookie = "playerID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+	window.location.href = "/"
+}
+
 async function
 updateUI()
 {
 	const playerID = localStorage.getItem("playerID")
-	const playerName = localStorage.getItem("playerName")
-
-	//	Show the player name (if any)…
 	
-	const playerNameElement = document.getElementById("player-name")
-	if (playerName)
-	{
-		playerNameElement.textContent = playerName
-	}
-	else
-	{
-		playerNameElement.textContent = null
-	}
-	
-	//	If there’s a game, set it on the card view…
-	
-	const game = JSON.parse(localStorage.getItem("currentGame"))
-	if (game)
-	{
-		const gn = document.getElementById("gameName")
-		gn.textContent = game.displayName
-	}
-	
-	//	Set up the Login/Logout button…
-	
-	const authLink = document.getElementById("auth-link")
-	if (playerID)
-	{
-		authLink.textContent = "Logout"
-		authLink.onclick = (e) =>
-		{
-			e.preventDefault()
-			localStorage.removeItem("playerID")
-			localStorage.removeItem("playerName")
-			localStorage.removeItem("playerCard")
-			localStorage.removeItem("currentGame")
-			localStorage.removeItem("currentGameID")
-			location.reload()
-		}
-	}
-	else
-	{
-		authLink.textContent = "Login"
-		authLink.onclick = (e) =>
-		{
-			e.preventDefault()
-			showView("login-view")
-		}
-	}
 }
 
 function
@@ -382,6 +349,12 @@ openWebsocket(inCardID)
 		})
 }
 
+//	MARK: - • Card Page -
+
+function
+gameLoaded()
+{
+}
 
 //	MARK: - • Rendering HTML -
 
@@ -474,6 +447,12 @@ renderCard(inCard)
 	
 	//	Add tap handler to each cell…
 	
+	addCardWordTapHandlers(inCard.id)
+}
+
+function
+addCardWordTapHandlers(inCardID)
+{
 	document.querySelectorAll(".bingo-card > div").forEach(cell =>
 	{
 		cell.addEventListener("click", async (inEvent) =>
@@ -485,7 +464,7 @@ renderCard(inCard)
 			{
 				newMark = false
 			}
-			const cw = await api.markCard(inCard.id, sequence, newMark)
+			const cw = await api.markCard(inCardID, sequence, newMark)
 		})
 	})
 }
@@ -518,3 +497,10 @@ function shrinkToFitCard(container, minFontSize = 8, step = 0.5) {
 		scrollW = content.scrollWidth;
 	}
 }
+
+
+window.addCardWordTapHandlers = addCardWordTapHandlers
+window.documentLoaded = documentLoaded
+window.loginSubmit = loginSubmit
+window.logout = logout
+window.openWebsocket = openWebsocket

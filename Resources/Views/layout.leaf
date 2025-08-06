@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="/css/pico.slate.min.css">
 	<link rel="stylesheet" href="/css/main.css">
 	<script src="/js/main.js" type="module"></script>
+	#import("script")
 </head>
 <body>
 <div class="container">

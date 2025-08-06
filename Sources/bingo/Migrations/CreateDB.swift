@@ -239,3 +239,22 @@ CreateBingo : AsyncMigration
 	}
 }
 
+
+//	MARK: - • Fluent Extensions -
+
+public extension QueryBuilder
+{
+	@discardableResult
+	func filter<Joined>(_: Joined.Type,
+						_ field: KeyPath<Joined, IDProperty<Joined, Joined.IDValue>>,
+						_ method: DatabaseQuery.Filter.Method,
+						_ value: Joined.IDValue?) -> Self
+		where Joined: Schema
+	{
+		self.filter(.extendedPath(
+			Joined.path(for: field),
+			schema: Joined.schemaOrAlias,
+			space: Joined.spaceIfNotAliased
+		), method, value.map { IDProperty<Joined, Joined.IDValue>.queryValue($0) } ?? .null)
+	}
+}

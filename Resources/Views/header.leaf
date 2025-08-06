@@ -3,9 +3,19 @@
 				<li><a href="/"><strong>Bingo</strong></a></li>
 			</ul>
 			<ul>
-				<li><span id="player-name"></span></li>
+				#if(currentPlayer):
+				<li>
+					<details class="dropdown">
+						<summary>#(currentPlayer.name)</summary>
+						<ul>
+							<li><a href="#" onClick="logout()">Logout</a></li>
+						</ul>
+					</details>
+				</li>
+				#else:
 				<li><a id="auth-link" href="#">Login</a></li>
-				<li><a href="games/">Games</a></li>
+				#endif
+				<li><a href="/games/">Games</a></li>
 				<li><a id="card-link" href="#">Card</a></li>
 			</ul>
 		</nav>

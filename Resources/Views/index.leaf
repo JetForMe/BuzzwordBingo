@@ -1,30 +1,28 @@
 #extend("layout"):
+	#export("script"):
+		<script>
+			document.addEventListener("DOMContentLoaded", () =>
+			{
+				(async () =>
+				{
+					await documentLoaded()
+				})()
+			})
+		</script>
+	#endexport
 	#export("main"):
-		<section id="login-view" class="view">
-			<form>
+		#if(currentPlayer == nil):
+		<section id="login-view" class="view active">
+			<form id="login-form">
 				<fieldset>
 					<p style="text-align: left;">Enter the player name you wish to use to log in. No need to register, just pick something
 					and go.</p>
 					<input id="username" name="name" placeholder="Player Name" autocomplete="username" />
 				</fieldset>
 
-				<input id="login-submit" type="submit" value="Login" />
+				<input id="login-submit" type="submit" value="Login"/>
 			</form>
 		</section>
-
-		<section id="games-view" class="view">
-			<h1 class="centered">Game List</h1>
-			<div id="games-list"></div>
-		</section>
-
-		<section id="card-view" class="view">
-			<h1 id="gameName" class="centered">Game Name</h1>
-			<div id="scores">
-			</div>
-			<div id="cards">
-				<div class="bingo-card">
-				</div>
-			</div>
-		</section>
+		#endif
 	#endexport
 #endextend
